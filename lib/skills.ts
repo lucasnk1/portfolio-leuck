@@ -171,7 +171,16 @@ export const skillsData: SkillCategory[] = [
           pt: 'Um método estatístico para agrupar pontos de dados similares.',
           en: 'A statistical method to group similar data points.'
         }
+      },
+      { 
+        name: 'Boolean Satisfiability Problem (SAT)',
+        icon: Network,
+        description: {
+          pt: 'O problema consiste em determinar se existe alguma atribuição de valores verdadeiros ou falsos às variáveis de uma fórmula lógica que torne a fórmula verdadeira.',
+          en: 'The problem consists of determining whether there is an assignment of true or false values to the variables of a logical formula that makes the formula true.'
+        }
       }
+
     ]
   },
   {

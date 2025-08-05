@@ -202,12 +202,12 @@ export default function Home() {
               </a>
               
               <a
-                href="mailto:lucas.oliveria014@edu.pucrs.br"
+                href="mailto:lucas.oliveira014@edu.pucrs.br"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
               >
                 <Mail size={32} className="text-green-500" />
                 <span className="font-medium">{t.contact.email}</span>
-                <span className="text-sm text-secondary">lucas.oliveria014@edu.pucrs.br</span>
+                <span className="text-sm text-secondary">lucas.oliveira014@edu.pucrs.br</span>
               </a>
             </div>
           </motion.div>
