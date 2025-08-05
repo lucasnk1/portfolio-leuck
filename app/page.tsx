@@ -18,8 +18,8 @@ export default function Home() {
   const projects = [
     {
       title: "Manipulação de Dados de Candidatos",
-      description: "Sistema em pyhon manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
-      technologies: ["Python", "Pandas", "csv", "ipynb"],
+      description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
+      technologies: ["Python", "csv", "ipynb"],
       githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
     },
    // {
