@@ -326,7 +326,7 @@ export const skillsData: SkillCategory[] = [
     },
     skills: [
       {
-        name: 'Inglês B2',
+        name: 'English B2',
         icon: Languages,
         description: {
           pt: 'Nível intermediário avançado em inglês, capaz de comunicação fluente e compreensão de textos complexos.',
@@ -334,7 +334,7 @@ export const skillsData: SkillCategory[] = [
         }
       },
       {
-        name: 'Francês A2',
+        name: 'French A2',
         icon: Languages,
         description: {
           pt: 'Nível básico em francês, com conhecimentos fundamentais para comunicação simples.',
