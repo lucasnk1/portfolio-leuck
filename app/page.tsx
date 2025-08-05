@@ -17,25 +17,18 @@ export default function Home() {
 
   const projects = [
     {
-      title: "Sistema de Análise de Dados",
-      description: "Sistema completo de análise de dados com dashboard interativo, processamento de dados em tempo real e relatórios automatizados. Implementado com Python, Pandas e Power BI.",
-      technologies: ["Python", "Pandas", "Power BI", "SQL", "Streamlit"],
-      githubUrl: "https://github.com/seu-usuario/analise-dados",
-      liveUrl: "https://demo-analise-dados.vercel.app"
+      title: "Manipulação de Dados de Candidatos",
+      description: "Sistema em pyhon manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
+      technologies: ["Python", "Pandas", "csv", "ipynb"],
+      githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
     },
-    {
-      title: "Automação de Processos",
-      description: "Sistema de automação para processos empresariais, incluindo extração de dados, processamento automatizado e geração de relatórios. Reduziu o tempo de processamento em 80%.",
-      technologies: ["Python", "Selenium", "OpenPyXL", "Automation"],
-      githubUrl: "https://github.com/seu-usuario/automacao-processos"
-    },
-    {
-      title: "Dashboard de Business Intelligence",
-      description: "Dashboard completo de BI com métricas de vendas, análise de tendências e previsões usando machine learning. Interface moderna e responsiva.",
-      technologies: ["Power BI", "DAX", "Python", "Machine Learning"],
-      githubUrl: "https://github.com/seu-usuario/dashboard-bi",
-      liveUrl: "https://dashboard-bi.vercel.app"
-    }
+   // {
+      //title: "Automação de Processos",
+      //description: "Sistema de automação para processos empresariais, incluindo extração de dados, processamento automatizado e geração de relatórios. Reduziu o tempo de processamento em 80%.",
+      //technologies: ["Python", "Selenium", "OpenPyXL", "Automation"],
+      //githubUrl: "https://github.com/seu-usuario/automacao-processos"
+      //liveUrl: "https://demo-analise-dados.vercel.app"
+   // },
   ]
 
   return (
@@ -187,7 +180,7 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <a
-                href="https://www.linkedin.com/in/lucasleuck/"
+                href="https://www.linkedin.com/in/lucas-leuck-a58332353/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
@@ -198,23 +191,23 @@ export default function Home() {
               </a>
               
               <a
-                href="https://github.com/seu-usuario"
+                href="https://github.com/lucasnk1"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
               >
                 <Github size={32} className="text-foreground" />
                 <span className="font-medium">{t.contact.github}</span>
-                <span className="text-sm text-secondary">seu-usuario</span>
+                <span className="text-sm text-secondary">lucasnk1</span>
               </a>
               
               <a
-                href="mailto:lucas@email.com"
+                href="mailto:lucas.oliveria014@edu.pucrs.br"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
               >
                 <Mail size={32} className="text-green-500" />
                 <span className="font-medium">{t.contact.email}</span>
-                <span className="text-sm text-secondary">lucas@email.com</span>
+                <span className="text-sm text-secondary">lucas.oliveria014@edu.pucrs.br</span>
               </a>
             </div>
           </motion.div>

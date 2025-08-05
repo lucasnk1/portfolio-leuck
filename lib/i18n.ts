@@ -61,7 +61,7 @@ export const translations: Record<Language, Translations> = {
     home: {
       title: 'Lucas Leuck de Oliveira',
       subtitle: 'Estudante de Ciência de Dados & IA | Python | Power BI | Entusiasta de Automação',
-      downloadCV: 'Download CV',
+      downloadCV: 'Baixar CV',
       learnMore: 'Saiba mais'
     },
     about: {
