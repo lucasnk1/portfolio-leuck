@@ -95,7 +95,7 @@ export const translations: Record<Language, Translations> = {
     footer: {
       madeWith: 'Feito com',
       by: 'por Lucas Leuck',
-      copyright: '© 2024 Lucas Leuck de Oliveira. Todos os direitos reservados.'
+      copyright: '© 2025 Lucas Leuck de Oliveira. Todos os direitos reservados.'
     }
   },
   en: {
@@ -143,7 +143,7 @@ export const translations: Record<Language, Translations> = {
     footer: {
       madeWith: 'Made with',
       by: 'by Lucas Leuck',
-      copyright: '© 2024 Lucas Leuck de Oliveira. All rights reserved.'
+      copyright: '© 2025 Lucas Leuck de Oliveira. All rights reserved.'
     }
   }
 } 
