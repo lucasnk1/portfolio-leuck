@@ -180,7 +180,7 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <a
-                href="https://www.linkedin.com/in/lucas-leuck-a58332353/"
+                href="https://www.linkedin.com/in/lucasleuck/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
