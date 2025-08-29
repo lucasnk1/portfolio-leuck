@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import { Linkedin, Github, Mail } from 'lucide-react'
 import { Language, translations } from '@/lib/i18n'
 import Header from '@/components/Header'
-import ProjectCard from '@/components/ProjectCard'
+import ProjectsSection from '@/components/ProjectsSection'
 import Footer from '@/components/Footer'
 import ResumeDownload from '@/components/ResumeDownload'
 import ContactButton from '@/components/ContactButton'
@@ -14,22 +14,6 @@ import SkillsSection from '@/components/SkillsSection'
 export default function Home() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('pt')
   const t = translations[currentLanguage]
-
-  const projects = [
-    {
-      title: "Manipulação de Dados de Candidatos",
-      description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
-      technologies: ["Python", "csv", "ipynb"],
-      githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
-    },
-   // {
-      //title: "Automação de Processos",
-      //description: "Sistema de automação para processos empresariais, incluindo extração de dados, processamento automatizado e geração de relatórios. Reduziu o tempo de processamento em 80%.",
-      //technologies: ["Python", "Selenium", "OpenPyXL", "Automation"],
-      //githubUrl: "https://github.com/seu-usuario/automacao-processos"
-      //liveUrl: "https://demo-analise-dados.vercel.app"
-   // },
-  ]
 
   return (
     <main className="min-h-screen bg-background">
@@ -125,30 +109,7 @@ export default function Home() {
       </section>
 
       {/* Projetos Section */}
-      <section id="projetos" className="section-padding">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t.projects.title}</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={index}
-                {...project}
-                index={index}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      <ProjectsSection currentLanguage={currentLanguage} />
 
       {/* Skills Section */}
       <SkillsSection currentLanguage={currentLanguage} />
@@ -180,14 +141,14 @@ export default function Home() {
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <a
-                href="https://www.linkedin.com/in/lucasleuck/"
+                href="https://www.linkedin.com/in/lucasleuck"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
               >
                 <Linkedin size={32} className="text-blue-500" />
                 <span className="font-medium">{t.contact.linkedin}</span>
-                <span className="text-sm text-secondary">lucasleuck</span>
+                <span className="text-sm text-secondary">lucas leuck</span>
               </a>
               
               <a
@@ -202,12 +163,12 @@ export default function Home() {
               </a>
               
               <a
-                href="mailto:lucas.oliveira014@edu.pucrs.br"
+                href="mailto:lucas.oliveria014@edu.pucrs.br"
                 className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
               >
                 <Mail size={32} className="text-green-500" />
                 <span className="font-medium">{t.contact.email}</span>
-                <span className="text-sm text-secondary">lucas.oliveira014@edu.pucrs.br</span>
+                <span className="text-sm text-secondary">lucas.oliveria014@edu.pucrs.br</span>
               </a>
             </div>
           </motion.div>

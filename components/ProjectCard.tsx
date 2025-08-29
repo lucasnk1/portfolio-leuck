@@ -7,12 +7,13 @@ interface ProjectCardProps {
   title: string
   description: string
   technologies: string[]
-  githubUrl: string
+  githubUrl?: string
   liveUrl?: string
+  learnMoreUrl?: string
   index: number
 }
 
-const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, index }: ProjectCardProps) => {
+const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, learnMoreUrl, index }: ProjectCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -43,15 +44,17 @@ const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, ind
         </div>
 
         <div className="flex gap-3">
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg transition-colors duration-200"
-          >
-            <Github size={16} />
-            <span>GitHub</span>
-          </a>
+          {githubUrl && (
+            <a
+              href={githubUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-foreground rounded-lg transition-colors duration-200"
+            >
+              <Github size={16} />
+              <span>GitHub</span>
+            </a>
+          )}
           
           {liveUrl && (
             <a
@@ -62,6 +65,18 @@ const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, ind
             >
               <ExternalLink size={16} />
               <span>Demo</span>
+            </a>
+          )}
+
+          {learnMoreUrl && (
+            <a
+              href={learnMoreUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-accent hover:from-primary/80 hover:to-accent/80 text-white rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <ExternalLink size={16} />
+              <span>Saiba mais</span>
             </a>
           )}
         </div>

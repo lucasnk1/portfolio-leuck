@@ -26,6 +26,8 @@ export interface Translations {
   }
   projects: {
     title: string
+    programming: string
+    academic: string
   }
   skills: {
     title: string
@@ -75,7 +77,9 @@ export const translations: Record<Language, Translations> = {
       aiMLDesc: 'Machine Learning'
     },
     projects: {
-      title: 'Projetos'
+      title: 'Projetos',
+      programming: 'Projetos de Programação',
+      academic: 'Projetos Acadêmicos'
     },
     skills: {
       title: 'Habilidades',
@@ -123,7 +127,9 @@ export const translations: Record<Language, Translations> = {
       aiMLDesc: 'Machine Learning'
     },
     projects: {
-      title: 'Projects'
+      title: 'Projects',
+      programming: 'Programming Projects',
+      academic: 'Academic Projects'
     },
     skills: {
       title: 'Skills',

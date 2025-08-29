@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { skillsData } from '@/lib/skills'
 import SkillCard from './SkillCard'
 import { Language, translations } from '@/lib/i18n'
-import { X } from 'lucide-react'
+import { X, ChevronDown, Folder } from 'lucide-react'
 
 interface SkillsSectionProps {
   currentLanguage: Language
@@ -14,11 +14,22 @@ interface SkillsSectionProps {
 const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
   const t = translations[currentLanguage]
   const [activeSkill, setActiveSkill] = useState<string | null>(null)
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [progress, setProgress] = useState(0)
 
   const handleSkillClick = (skillName: string) => {
     setActiveSkill(activeSkill === skillName ? null : skillName)
     setProgress(0)
+  }
+
+  const toggleCategory = (categoryTitle: string) => {
+    const newExpanded = new Set(expandedCategories)
+    if (newExpanded.has(categoryTitle)) {
+      newExpanded.delete(categoryTitle)
+    } else {
+      newExpanded.add(categoryTitle)
+    }
+    setExpandedCategories(newExpanded)
   }
 
   const getActiveSkill = () => {
@@ -67,32 +78,76 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
           <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
         </motion.div>
         
-        <div className="space-y-12">
-          {skillsData.map((category, categoryIndex) => (
-            <motion.div
-              key={category.title[currentLanguage]}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: categoryIndex * 0.1 }}
-              viewport={{ once: true }}
-            >
-              <h3 className="text-2xl font-semibold text-foreground mb-6 text-center">
-                {category.title[currentLanguage]}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                {category.skills.map((skill, skillIndex) => (
-                  <SkillCard
-                    key={skill.name}
-                    skill={skill}
-                    index={skillIndex}
-                    currentLanguage={currentLanguage}
-                    onSkillClick={handleSkillClick}
-                    isActive={activeSkill === skill.name}
+        <div className="space-y-6 max-w-6xl mx-auto">
+          {skillsData.map((category, categoryIndex) => {
+            const isExpanded = expandedCategories.has(category.title[currentLanguage])
+            
+            return (
+              <motion.div
+                key={category.title[currentLanguage]}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: categoryIndex * 0.1 }}
+                viewport={{ once: true }}
+                className="bg-gray-900/30 border border-gray-800 rounded-lg overflow-hidden"
+              >
+                {/* Category Header */}
+                <button
+                  onClick={() => toggleCategory(category.title[currentLanguage])}
+                  className="w-full p-6 flex items-center justify-between hover:bg-gray-800/30 transition-colors duration-200"
+                >
+                  <div className="flex items-center gap-4">
+                    <Folder 
+                      size={24} 
+                      className={`transition-colors duration-200 ${
+                        isExpanded ? 'text-primary' : 'text-secondary'
+                      }`} 
+                    />
+                    <h3 className="text-xl font-semibold text-foreground">
+                      {category.title[currentLanguage]}
+                    </h3>
+                    <span className="px-3 py-1 bg-gray-800 text-secondary text-sm rounded-full">
+                      {category.skills.length}
+                    </span>
+                  </div>
+                  <ChevronDown 
+                    size={20} 
+                    className={`text-secondary transition-transform duration-200 ${
+                      isExpanded ? 'rotate-180' : ''
+                    }`} 
                   />
-                ))}
-              </div>
-            </motion.div>
-          ))}
+                </button>
+
+                {/* Category Content */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="p-6 pt-0">
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                          {category.skills.map((skill, skillIndex) => (
+                            <SkillCard
+                              key={skill.name}
+                              skill={skill}
+                              index={skillIndex}
+                              currentLanguage={currentLanguage}
+                              onSkillClick={handleSkillClick}
+                              isActive={activeSkill === skill.name}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            )
+          })}
         </div>
 
         {/* Skill Description Panel */}
