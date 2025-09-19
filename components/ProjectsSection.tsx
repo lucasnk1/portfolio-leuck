@@ -30,6 +30,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       technologies: ["Python", "csv", "ipynb"],
       githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
     },
+    {
+      title: "Crawler Wikipedia e Grau de Separação",
+      description: "Crawler na Wikipédia: programa que navega pelos links, identifica páginas de pessoas e salva o HTML. Depois, monta um grafo conectando pessoas por links diretos e usa BFS para mostrar o grau de separação e o caminho entre duas escolhidas.",
+      technologies: ["HTML", "ipynb", "Python"],
+      githubUrl: "https://github.com/lucasnk1/crawler-wikipedia",
+    }
     // Adicione mais projetos de programação aqui
   ]
 

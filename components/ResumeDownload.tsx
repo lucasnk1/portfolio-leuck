@@ -5,9 +5,8 @@ import { motion } from 'framer-motion'
 
 const ResumeDownload = () => {
   const handleDownload = () => {
-    // Aqui você pode implementar a lógica de download do PDF
-    // Por exemplo, redirecionar para um arquivo PDF hospedado
-    const pdfUrl = '/resume-lucas-leuck.pdf' // Adicione seu PDF na pasta public/
+    
+    const pdfUrl = '/resume-lucas-leuck.pdf' 
     
     // Criar um link temporário para download
     const link = document.createElement('a')
