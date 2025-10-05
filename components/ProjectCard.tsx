@@ -10,10 +10,12 @@ interface ProjectCardProps {
   githubUrl?: string
   liveUrl?: string
   learnMoreUrl?: string
+  imageUrl?: string
+  imageAlt?: string
   index: number
 }
 
-const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, learnMoreUrl, index }: ProjectCardProps) => {
+const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, learnMoreUrl, imageUrl, imageAlt, index }: ProjectCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -24,6 +26,16 @@ const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, lea
     >
       <div className="flex flex-col h-full">
         <div className="flex-1">
+          {imageUrl && (
+            <div className="w-full mb-4">
+              <img
+                src={imageUrl}
+                alt={imageAlt || title}
+                className="w-full max-h-[520px] object-contain rounded-md pointer-events-none select-none"
+                loading="lazy"
+              />
+            </div>
+          )}
           <h3 className="text-xl font-semibold text-foreground mb-3">
             {title}
           </h3>

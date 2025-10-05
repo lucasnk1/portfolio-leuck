@@ -17,6 +17,8 @@ interface Project {
   githubUrl?: string
   liveUrl?: string
   learnMoreUrl?: string
+  imageUrl?: string
+  imageAlt?: string
 }
 
 const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
@@ -66,12 +68,14 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
 
   // Agora: Pessoais
   const personalProjects: Project[] = [
-    {
-      title: "eBook: JOVENS E A CORRIDA PELO DINHEIRO",
-      description: "Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.",
-      technologies: [""],
-      learnMoreUrl: "https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?usp=sharing", 
-    },
+     {
+       title: "eBook: JOVENS E A CORRIDA PELO DINHEIRO",
+       description: "Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.",
+       technologies: [""],
+       learnMoreUrl: "https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?usp=sharing",
+       imageUrl: "/ebook-capa.jpg", // coloque sua capa em public/ebook-capa.jpg
+       imageAlt: "Capa do eBook Jovens e a Corrida pelo Dinheiro"
+     },
     // Adicione mais projetos acadêmicos aqui
   ]
 
