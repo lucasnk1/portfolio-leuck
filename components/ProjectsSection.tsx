@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { motion, useMotionValue, useTransform } from 'framer-motion'
 import { Language, translations } from '@/lib/i18n'
 import ProjectCard from './ProjectCard'
 import { ExternalLink } from 'lucide-react'
@@ -21,9 +21,17 @@ interface Project {
 
 const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   const t = translations[currentLanguage]
-  const [activeTab, setActiveTab] = useState<'programming' | 'academic'>('programming')
+  const [activeTab, setActiveTab] = useState<'academic' | 'personal'>('academic')
+  const [isPaused, setIsPaused] = useState(false)
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
 
-  const programmingProjects: Project[] = [
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const trackRef = useRef<HTMLDivElement | null>(null)
+  const x = useMotionValue(0)
+  const dimOpacity = useTransform(x, () => (hoveredIndex !== null ? 0.55 : 1))
+
+  // Agora: Acadêmicos
+  const academicProjects: Project[] = [
     {
       title: "Manipulação de Dados de Candidatos",
       description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
@@ -35,11 +43,30 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       description: "Crawler na Wikipédia: programa que navega pelos links, identifica páginas de pessoas e salva o HTML. Depois, monta um grafo conectando pessoas por links diretos e usa BFS para mostrar o grau de separação e o caminho entre duas escolhidas.",
       technologies: ["HTML", "ipynb", "Python"],
       githubUrl: "https://github.com/lucasnk1/crawler-wikipedia",
+    },
+    {
+      title: "Coleta de Dados do IMDB",
+      description: "Web Scraping de dados do site IMDB (Internet Movie Database) utilizando a biblioteca Selenium para simular a navegação de um usuário real e contornar proteções básicas do site.",
+      technologies: ["JSON", "Python"],
+      githubUrl: "https://github.com/lucasnk1/Coleta-de-Dados-do-IMDB",
+    },
+    {
+      title: "EDA do dataset Palmer Penguins ",
+      description: "Análise exploratória de dados (EDA) e pré-processamento do dataset Palmer Penguins. Foco na identificação de features, tratamento de valores faltantes e análise de balanceamento de classes.",
+      technologies: ["Python", "csv", "ipynb"],
+      githubUrl: "https://github.com/lucasnk1/analise-dados-penguins",
+    },
+    {
+      title: "API REST Pandas ClashDataset ",
+      description: "API REST em Flask para manipulação e consulta (CRUD) de dados do dataset clash_wiki_dataset.csv com Pandas. Inclui script de consumo (requests) e coleção Postman para validação.",
+      technologies: ["Python", "csv", "ipynb", "Flask", "Postman", "requests","Pandas","API REST"],
+      githubUrl: "https://github.com/lucasnk1/API-REST-Pandas-ClashDataset",
     }
     // Adicione mais projetos de programação aqui
   ]
 
-  const academicProjects: Project[] = [
+  // Agora: Pessoais
+  const personalProjects: Project[] = [
    // {
       //title: "E2E – Estudante para Estudante",
       //description: "Projeto acadêmico focado em [descrição a ser adicionada]",
@@ -51,20 +78,65 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
 
   const tabs = [
     {
-      id: 'programming' as const,
-      label: 'Programação',
-      count: programmingProjects.length
+      id: 'academic' as const,
+      label: 'Acadêmicos',
+      count: academicProjects.length
     },
     {
-      id: 'academic' as const,
-      label: 'Acadêmico',
-      count: academicProjects.length
+      id: 'personal' as const,
+      label: 'Pessoais',
+      count: personalProjects.length
     }
   ]
 
   const getActiveProjects = () => {
-    return activeTab === 'programming' ? programmingProjects : academicProjects
+    return activeTab === 'academic' ? academicProjects : personalProjects
   }
+
+  // Lista duplicada para loop infinito (evita "roleta" vazia)
+  const projectsLoop = useMemo(() => {
+    const list = getActiveProjects()
+    // garante ao menos alguns itens visíveis (cai no Acadêmicos se pessoal estiver vazio)
+    const fallback = academicProjects
+    const base = list.length > 0 ? list : (fallback.length > 0 ? fallback : list)
+    return [...base, ...base, ...base]
+  }, [activeTab, academicProjects, personalProjects])
+
+  // Autoplay com requestAnimationFrame (fluxo contínuo esquerda -> direita)
+  useEffect(() => {
+    let raf: number
+    const speedPxPerSec = 60 // ajuste de velocidade
+    let prevTs = 0
+
+    const step = (ts: number) => {
+      if (!prevTs) prevTs = ts
+      const dt = (ts - prevTs) / 1000
+      prevTs = ts
+
+      if (!isPaused) {
+        const track = trackRef.current
+        const container = containerRef.current
+        if (track && container) {
+          const containerWidth = container.getBoundingClientRect().width
+          const trackWidth = track.scrollWidth
+          // move para a esquerda
+          let next = x.get() - speedPxPerSec * dt
+          // quando metade do track passou, reseta para 0
+          const resetThreshold = -(trackWidth / 3) // porque triplicamos os itens
+          if (next <= resetThreshold) next = 0
+          // evita "puxões" quando for muito maior que container
+          if (trackWidth > containerWidth) {
+            x.set(next)
+          }
+        }
+      }
+
+      raf = requestAnimationFrame(step)
+    }
+
+    raf = requestAnimationFrame(step)
+    return () => cancelAnimationFrame(raf)
+  }, [isPaused, activeTab])
 
   return (
     <section id="projetos" className="section-padding">
@@ -102,41 +174,85 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
           </div>
         </div>
 
-        {/* Projects Grid */}
-        <AnimatePresence mode="wait">
+        {/* Roleta horizontal infinita */}
+        <div
+          ref={containerRef}
+          className="relative overflow-hidden"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            const step = 80
+            if (e.key === 'ArrowLeft') {
+              setIsPaused(true)
+              x.set(x.get() + step)
+            } else if (e.key === 'ArrowRight') {
+              setIsPaused(true)
+              x.set(x.get() - step)
+            } else if (e.key === 'Escape') {
+              setIsPaused(false)
+            }
+          }}
+          onMouseLeave={() => {
+            setHoveredIndex(null)
+            setIsPaused(false)
+          }}
+        >
           <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+            ref={trackRef}
+            style={{ x, opacity: dimOpacity as unknown as number }}
+            drag="x"
+            dragElastic={0.05}
+            dragMomentum={false}
+            onDragStart={() => setIsPaused(true)}
+            onDragEnd={() => setIsPaused(false)}
+            className="flex gap-6 py-2"
           >
-            {getActiveProjects().map((project, index) => (
-              <ProjectCard
-                key={`${activeTab}-${index}`}
-                {...project}
-                index={index}
-              />
-            ))}
+            {projectsLoop.map((project, idx) => {
+              const isHovered = hoveredIndex === idx
+              return (
+                <motion.div
+                  key={`${activeTab}-loop-${idx}`}
+                  onMouseEnter={() => {
+                    setHoveredIndex(idx)
+                    setIsPaused(true)
+                  }}
+                  onFocus={() => {
+                    setHoveredIndex(idx)
+                    setIsPaused(true)
+                  }}
+                  onBlur={() => {
+                    setHoveredIndex((current) => (current === idx ? null : current))
+                    setIsPaused(false)
+                  }}
+                  className={`shrink-0 w-[320px] md:w-[360px]`}
+                  tabIndex={0}
+                  animate={{
+                    scale: isHovered ? 1.05 : 1,
+                    filter: isHovered ? 'brightness(1.15)' : 'brightness(0.95)'
+                  }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                >
+                  <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl' : ''}>
+                    <ProjectCard
+                      {...project}
+                      index={idx % (getActiveProjects().length || 1)}
+                    />
+                  </div>
+                </motion.div>
+              )
+            })}
           </motion.div>
-        </AnimatePresence>
+        </div>
 
-        {/* Empty State */}
-        {getActiveProjects().length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center py-16"
-          >
+        {/* Empty State (mantém aviso caso nenhuma lista exista) */}
+        {academicProjects.length === 0 && personalProjects.length === 0 && (
+          <div className="text-center py-16">
             <div className="text-6xl mb-4">📁</div>
             <p className="text-secondary text-lg">
               {currentLanguage === 'pt' 
                 ? 'Nenhum projeto encontrado nesta categoria ainda.' 
-                : 'No projects found in this category yet.'
-              }
+                : 'No projects found in this category yet.'}
             </p>
-          </motion.div>
+          </div>
         )}
       </div>
     </section>
