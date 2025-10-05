@@ -66,12 +66,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
 
   // Agora: Pessoais
   const personalProjects: Project[] = [
-   // {
-      //title: "E2E – Estudante para Estudante",
-      //description: "Projeto acadêmico focado em [descrição a ser adicionada]",
-      //technologies: ["[Tecnologias a serem definidas]"],
-     // learnMoreUrl: "#", // URL a ser definida
-  //  },
+    {
+      title: "eBook: JOVENS E A CORRIDA PELO DINHEIRO",
+      description: "Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.",
+      technologies: [""],
+      learnMoreUrl: "https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?usp=sharing", 
+    },
     // Adicione mais projetos acadêmicos aqui
   ]
 
@@ -95,10 +95,8 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   // Lista duplicada para loop infinito (evita "roleta" vazia)
   const projectsLoop = useMemo(() => {
     const list = getActiveProjects()
-    // garante ao menos alguns itens visíveis (cai no Acadêmicos se pessoal estiver vazio)
-    const fallback = academicProjects
-    const base = list.length > 0 ? list : (fallback.length > 0 ? fallback : list)
-    return [...base, ...base, ...base]
+    if (list.length === 0) return []
+    return [...list, ...list, ...list]
   }, [activeTab, academicProjects, personalProjects])
 
   // Autoplay com requestAnimationFrame (fluxo contínuo esquerda -> direita)
@@ -195,66 +193,65 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
             setIsPaused(false)
           }}
         >
-          <motion.div
-            ref={trackRef}
-            style={{ x }}
-            drag="x"
-            dragElastic={0.05}
-            dragMomentum={false}
-            onDragStart={() => setIsPaused(true)}
-            onDragEnd={() => setIsPaused(false)}
-            className="flex gap-6 py-2"
-          >
-            {projectsLoop.map((project, idx) => {
-              const isHovered = hoveredIndex === idx
-              const isDimmed = hoveredIndex !== null && hoveredIndex !== idx
-              return (
-                <motion.div
-                  key={`${activeTab}-loop-${idx}`}
-                  onMouseEnter={() => {
-                    setHoveredIndex(idx)
-                    setIsPaused(true)
-                  }}
-                  onFocus={() => {
-                    setHoveredIndex(idx)
-                    setIsPaused(true)
-                  }}
-                  onBlur={() => {
-                    setHoveredIndex((current) => (current === idx ? null : current))
-                    setIsPaused(false)
-                  }}
-                  className={`shrink-0 w-[320px] md:w-[360px] ${isHovered ? 'relative z-10' : ''}`}
-                  tabIndex={0}
-                  animate={{
-                    scale: isHovered ? 1.07 : 1,
-                    filter: isHovered ? 'brightness(1.15)' : 'brightness(0.85)',
-                    opacity: isDimmed ? 0.65 : 1
-                  }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 20 }}
-                >
-                  <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl shadow-lg' : ''}>
-                    <ProjectCard
-                      {...project}
-                      index={idx % (getActiveProjects().length || 1)}
-                    />
-                  </div>
-                </motion.div>
-              )
-            })}
-          </motion.div>
+          {projectsLoop.length > 0 ? (
+            <motion.div
+              ref={trackRef}
+              style={{ x }}
+              drag="x"
+              dragElastic={0.05}
+              dragMomentum={false}
+              onDragStart={() => setIsPaused(true)}
+              onDragEnd={() => setIsPaused(false)}
+              className="flex gap-6 py-2"
+            >
+              {projectsLoop.map((project, idx) => {
+                const isHovered = hoveredIndex === idx
+                const isDimmed = hoveredIndex !== null && hoveredIndex !== idx
+                return (
+                  <motion.div
+                    key={`${activeTab}-loop-${idx}`}
+                    onMouseEnter={() => {
+                      setHoveredIndex(idx)
+                      setIsPaused(true)
+                    }}
+                    onFocus={() => {
+                      setHoveredIndex(idx)
+                      setIsPaused(true)
+                    }}
+                    onBlur={() => {
+                      setHoveredIndex((current) => (current === idx ? null : current))
+                      setIsPaused(false)
+                    }}
+                    className={`shrink-0 w-[320px] md:w-[360px] ${isHovered ? 'relative z-10' : ''}`}
+                    tabIndex={0}
+                    animate={{
+                      scale: isHovered ? 1.07 : 1,
+                      filter: isHovered ? 'brightness(1.15)' : 'brightness(0.85)',
+                      opacity: isDimmed ? 0.65 : 1
+                    }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  >
+                    <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl shadow-lg' : ''}>
+                      <ProjectCard
+                        {...project}
+                        index={idx % (getActiveProjects().length || 1)}
+                      />
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </motion.div>
+          ) : (
+            <div className="text-center py-12">
+              <div className="text-5xl mb-3">📁</div>
+              <p className="text-secondary">
+                {currentLanguage === 'pt' ? 'Nenhum projeto nesta categoria ainda.' : 'No projects in this category yet.'}
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Empty State (mantém aviso caso nenhuma lista exista) */}
-        {academicProjects.length === 0 && personalProjects.length === 0 && (
-          <div className="text-center py-16">
-            <div className="text-6xl mb-4">📁</div>
-            <p className="text-secondary text-lg">
-              {currentLanguage === 'pt' 
-                ? 'Nenhum projeto encontrado nesta categoria ainda.' 
-                : 'No projects found in this category yet.'}
-            </p>
-          </div>
-        )}
+        {/* Empty State global removido; agora mostramos por aba quando vazia */}
       </div>
     </section>
   )
