@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { motion, useMotionValue, useTransform } from 'framer-motion'
+import { motion, useMotionValue } from 'framer-motion'
 import { Language, translations } from '@/lib/i18n'
 import ProjectCard from './ProjectCard'
 import { ExternalLink } from 'lucide-react'
@@ -28,7 +28,6 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const trackRef = useRef<HTMLDivElement | null>(null)
   const x = useMotionValue(0)
-  const dimOpacity = useTransform(x, () => (hoveredIndex !== null ? 0.55 : 1))
 
   // Agora: Acadêmicos
   const academicProjects: Project[] = [
@@ -177,7 +176,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
         {/* Roleta horizontal infinita */}
         <div
           ref={containerRef}
-          className="relative overflow-hidden"
+          className="relative overflow-x-hidden overflow-y-visible py-6"
           tabIndex={0}
           onKeyDown={(e) => {
             const step = 80
@@ -198,7 +197,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
         >
           <motion.div
             ref={trackRef}
-            style={{ x, opacity: dimOpacity as unknown as number }}
+            style={{ x }}
             drag="x"
             dragElastic={0.05}
             dragMomentum={false}
@@ -208,6 +207,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
           >
             {projectsLoop.map((project, idx) => {
               const isHovered = hoveredIndex === idx
+              const isDimmed = hoveredIndex !== null && hoveredIndex !== idx
               return (
                 <motion.div
                   key={`${activeTab}-loop-${idx}`}
@@ -223,15 +223,16 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
                     setHoveredIndex((current) => (current === idx ? null : current))
                     setIsPaused(false)
                   }}
-                  className={`shrink-0 w-[320px] md:w-[360px]`}
+                  className={`shrink-0 w-[320px] md:w-[360px] ${isHovered ? 'relative z-10' : ''}`}
                   tabIndex={0}
                   animate={{
-                    scale: isHovered ? 1.05 : 1,
-                    filter: isHovered ? 'brightness(1.15)' : 'brightness(0.95)'
+                    scale: isHovered ? 1.07 : 1,
+                    filter: isHovered ? 'brightness(1.15)' : 'brightness(0.85)',
+                    opacity: isDimmed ? 0.65 : 1
                   }}
                   transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                 >
-                  <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl' : ''}>
+                  <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl shadow-lg' : ''}>
                     <ProjectCard
                       {...project}
                       index={idx % (getActiveProjects().length || 1)}
