@@ -68,7 +68,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       description: "Aprenda SQL resolvendo mistérios: investigue casos analisando dados e descubra o culpado.",
       technologies: ["CSS", "JS","ts","API", "npm", "git"],
       githubUrl: "https://github.com/lucasnk1/Data-Detective",
-      liveUrl: "https://lucasnk1.github.io/Data-Detective/"
+      liveUrl: "https://data-detective-seven.vercel.app/"
     }
     // Adicione mais projetos de programação aqui
   ]
