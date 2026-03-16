@@ -62,6 +62,13 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       description: "API REST em Flask para manipulação e consulta (CRUD) de dados do dataset clash_wiki_dataset.csv com Pandas. Inclui script de consumo (requests) e coleção Postman para validação.",
       technologies: ["Python", "csv", "ipynb", "Flask", "Postman", "requests","Pandas","API REST"],
       githubUrl: "https://github.com/lucasnk1/API-REST-Pandas-ClashDataset",
+    },
+    {
+      title: "Data Detective ",
+      description: "Aprenda SQL resolvendo mistérios: investigue casos analisando dados e descubra o culpado.",
+      technologies: ["CSS", "JS","ts","API", "npm", "git"],
+      githubUrl: "https://github.com/lucasnk1/Data-Detective",
+      liveUrl: "https://lucasnk1.github.io/Data-Detective/"
     }
     // Adicione mais projetos de programação aqui
   ]
