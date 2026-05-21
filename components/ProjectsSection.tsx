@@ -36,18 +36,18 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
     {
       title: "Tower Defense Concorrente em GO",
       description: "Tower Defense Concorrente é um jogo de defesa de torres implementado em Go, utilizando técnicas avançadas de programação concorrente com goroutines e channels. O jogo demonstra conceitos de processamento paralelo e distribuído através de uma arquitetura baseada em entidades autônomas que se comunicam via canais de mensagens.",
-      technologies: ["Go (Golang)", "Goroutines", "Channels", "sync.WaitGroup", "Concorrência", "Programação Paralela", "Arquitetura Orientada a Eventos", "Terminal UI", "CLI", "Game Loop", "ASCII Rendering", "Sistemas Distribuídos", "Observer Pattern", "Producer-Consumer", "Cross-platform Input Handling"],
+      technologies: ["Go (Golang)", "Goroutines", "Channels", "Concorrência", "Programação Paralela"],
       githubUrl: "https://github.com/jpfossa/Jogo_Concorrente_Terminal_FPPD",
     },
     {
       title: "Manipulação de Dados de Candidatos",
-      description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
+      technologies: ["Go (Golang)", "Goroutines", "Channels", "Concorrência", "Programação Paralela"],
       technologies: ["Python", "csv", "ipynb"],
       githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
     },
     {
       title: "Crawler Wikipedia e Grau de Separação",
-      description: "Crawler na Wikipédia: programa que navega pelos links, identifica páginas de pessoas e salva o HTML. Depois, monta um grafo conectando pessoas por links diretos e usa BFS para mostrar o grau de separação e o caminho entre duas escolhidas.",
+      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "sync.Cond", "Concorrência"],
       technologies: ["HTML", "ipynb", "Python"],
       githubUrl: "https://github.com/lucasnk1/crawler-wikipedia",
     },
@@ -72,7 +72,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
     {
       title: "Pratica de Semaforos e Monitores em Go",
       description: "Este projeto apresenta exemplos e exercicios de sincronizacao de goroutines, com enfase em dois mecanismos: Semaforo contador com golang.org/x/sync/semaphore Monitor com sync.Cond",
-      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "Monitores", "sync.Cond", "sync.Mutex", "sync.WaitGroup", "golang.org/x/sync/semaphore", "Concorrência", "Sincronização de Threads", "Broadcast Signaling", "Deadlock Prevention", "Programação Paralela", "Processamento Concorrente"],
+      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "sync.Cond", "Concorrência"],
       githubUrl: "https://github.com/lucasnk1/Semaforos-e-Monitores-Go",
     }
     // Adicione mais projetos de programação aqui
