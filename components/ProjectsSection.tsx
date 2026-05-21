@@ -34,6 +34,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   // Agora: Acadêmicos
   const academicProjects: Project[] = [
     {
+      title: "Tower Defense Concorrente em GO",
+      description: "Tower Defense Concorrente é um jogo de defesa de torres implementado em Go, utilizando técnicas avançadas de programação concorrente com goroutines e channels. O jogo demonstra conceitos de processamento paralelo e distribuído através de uma arquitetura baseada em entidades autônomas que se comunicam via canais de mensagens.",
+      technologies: ["Go (Golang)", "Goroutines", "Channels", "sync.WaitGroup", "Concorrência", "Programação Paralela", "Arquitetura Orientada a Eventos", "Terminal UI", "CLI", "Game Loop", "ASCII Rendering", "Sistemas Distribuídos", "Observer Pattern", "Producer-Consumer", "Cross-platform Input Handling"],
+      githubUrl: "https://github.com/jpfossa/Jogo_Concorrente_Terminal_FPPD",
+    },
+    {
       title: "Manipulação de Dados de Candidatos",
       description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
       technologies: ["Python", "csv", "ipynb"],
@@ -62,6 +68,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       description: "API REST em Flask para manipulação e consulta (CRUD) de dados do dataset clash_wiki_dataset.csv com Pandas. Inclui script de consumo (requests) e coleção Postman para validação.",
       technologies: ["Python", "csv", "ipynb", "Flask", "Postman", "requests","Pandas","API REST"],
       githubUrl: "https://github.com/lucasnk1/API-REST-Pandas-ClashDataset",
+    },
+    {
+      title: "Pratica de Semaforos e Monitores em Go",
+      description: "Este projeto apresenta exemplos e exercicios de sincronizacao de goroutines, com enfase em dois mecanismos: Semaforo contador com golang.org/x/sync/semaphore Monitor com sync.Cond",
+      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "Monitores", "sync.Cond", "sync.Mutex", "sync.WaitGroup", "golang.org/x/sync/semaphore", "Concorrência", "Sincronização de Threads", "Broadcast Signaling", "Deadlock Prevention", "Programação Paralela", "Processamento Concorrente"],
+      githubUrl: "https://github.com/lucasnk1/Semaforos-e-Monitores-Go",
     }
     // Adicione mais projetos de programação aqui
   ]
