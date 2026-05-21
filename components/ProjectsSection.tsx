@@ -41,13 +41,13 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
     },
     {
       title: "Manipulação de Dados de Candidatos",
-      technologies: ["Go (Golang)", "Goroutines", "Channels", "Concorrência", "Programação Paralela"],
+      description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
       technologies: ["Python", "csv", "ipynb"],
       githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
     },
     {
       title: "Crawler Wikipedia e Grau de Separação",
-      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "sync.Cond", "Concorrência"],
+      description: "Crawler na Wikipédia: programa que navega pelos links, identifica páginas de pessoas e salva o HTML. Depois, monta um grafo conectando pessoas por links diretos e usa BFS para mostrar o grau de separação e o caminho entre duas escolhidas.",
       technologies: ["HTML", "ipynb", "Python"],
       githubUrl: "https://github.com/lucasnk1/crawler-wikipedia",
     },
