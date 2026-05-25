@@ -80,6 +80,14 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
 
   // Agora: Pessoais
   const personalProjects: Project[] = [
+    {
+       title: "Elyra",
+       description: "Uma plataforma de inteligência tecnológica movida por IA que reúne e organiza as notícias mais relevantes do ecossistema tech em tempo real.",
+       technologies: ["Next.js","TypeScript","OpenAI","PostgreSQL"],
+       githubUrl: "https://github.com/lucasnk1/Elyra",
+       imageUrl: "/printhome.png",
+       liveUrl: "https://elyra-red.vercel.app/"
+     },
      {
        title: "eBook: JOVENS E A CORRIDA PELO DINHEIRO",
        description: "Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.",
@@ -92,7 +100,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       title: "Data Detective ",
       description: "Aprenda SQL resolvendo mistérios: investigue casos analisando dados e descubra o culpado.",
       technologies: ["CSS", "JS","ts","API", "npm", "git"],
-        imageUrl: "/print-datadetective.jpeg",
+      imageUrl: "/print-datadetective.jpeg",
       imageAlt: "Interface do Data Detective mostrando um caso de investigação de dados",
       githubUrl: "https://github.com/lucasnk1/Data-Detective",
       liveUrl: "https://data-detective-seven.vercel.app/"
