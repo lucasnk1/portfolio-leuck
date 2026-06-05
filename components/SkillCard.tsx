@@ -21,19 +21,21 @@ const SkillCard = ({ skill, index, currentLanguage, onSkillClick, isActive }: Sk
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
+      transition={{ duration: 0.5, delay: index * 0.05 }}
       viewport={{ once: true }}
-      whileHover={{ scale: 1.05 }}
-      className={`skill-card bg-gray-900/50 border rounded-lg p-4 cursor-pointer transition-all duration-200 hover:shadow-lg relative ${
+      whileHover={{ scale: 1.05, y: -2 }}
+      className={`skill-card glass-card rounded-xl p-5 cursor-pointer group ${
         isActive 
-          ? 'border-primary shadow-lg shadow-primary/20 glow-border' 
-          : 'border-gray-800 hover:border-gray-600'
+          ? 'border-white/[0.15] shadow-lg shadow-white/[0.03]' 
+          : ''
       }`}
       onClick={() => onSkillClick(skill.name)}
     >
       <div className="flex flex-col items-center text-center">
-        <IconComponent size={32} className="text-primary mb-3" />
-        <h3 className="font-medium text-foreground">{skill.name}</h3>
+        <div className="w-12 h-12 rounded-lg bg-white/[0.04] flex items-center justify-center mb-3 group-hover:bg-white/[0.08] transition-all duration-300">
+          <IconComponent size={24} className="text-dim group-hover:text-foreground transition-colors duration-300" />
+        </div>
+        <h3 className="font-medium text-sm text-dim group-hover:text-foreground transition-colors duration-300">{skill.name}</h3>
       </div>
       
       {/* Active indicator */}
@@ -41,11 +43,11 @@ const SkillCard = ({ skill, index, currentLanguage, onSkillClick, isActive }: Sk
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full"
+          className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-white rounded-full shadow-sm shadow-white/30"
         />
       )}
     </motion.div>
   )
 }
 
-export default SkillCard 
+export default SkillCard

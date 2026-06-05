@@ -9,15 +9,16 @@ const Footer = ({ currentLanguage }: FooterProps) => {
   const t = translations[currentLanguage]
 
   return (
-    <footer className="border-t border-gray-800 py-8">
+    <footer className="py-8 relative">
+      <div className="divider-chrome mb-8"></div>
       <div className="container-custom">
         <div className="flex flex-col items-center justify-center text-center">
-          <div className="flex items-center gap-2 text-secondary mb-2">
+          <div className="flex items-center gap-2 text-dim mb-2 text-sm">
             <span>{t.footer.madeWith}</span>
-            <Heart size={16} className="text-red-500 fill-current" />
+            <Heart size={14} className="text-dim/60" />
             <span>{t.footer.by}</span>
           </div>
-          <p className="text-secondary text-sm">
+          <p className="text-dim/50 text-xs">
             {t.footer.copyright}
           </p>
         </div>
@@ -26,4 +27,4 @@ const Footer = ({ currentLanguage }: FooterProps) => {
   )
 }
 
-export default Footer 
+export default Footer

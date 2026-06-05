@@ -178,25 +178,29 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t.projects.title}</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
+          <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.projects.title}</h2>
+          <div className="divider-chrome w-24 mx-auto"></div>
         </motion.div>
 
         {/* Tabs */}
         <div className="flex justify-center mb-12">
-          <div className="bg-gray-900/50 border border-gray-800 rounded-lg p-1">
+          <div className="glass-card rounded-xl p-1.5 inline-flex">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`px-6 py-3 rounded-md font-medium transition-all duration-200 ${
+                className={`px-6 py-3 rounded-lg font-medium text-sm transition-all duration-300 ${
                   activeTab === tab.id
-                    ? 'bg-primary text-white shadow-lg'
-                    : 'text-secondary hover:text-foreground hover:bg-gray-800/50'
+                    ? 'bg-white/[0.1] text-foreground shadow-lg border border-white/[0.08]'
+                    : 'text-dim hover:text-foreground hover:bg-white/[0.03]'
                 }`}
               >
                 {tab.label}
-                <span className="ml-2 px-2 py-1 text-xs bg-gray-800 rounded-full">
+                <span className={`ml-2 px-2 py-0.5 text-xs rounded-full ${
+                  activeTab === tab.id 
+                    ? 'bg-white/[0.1] text-foreground' 
+                    : 'bg-white/[0.05] text-dim'
+                }`}>
                   {tab.count}
                 </span>
               </button>
@@ -207,7 +211,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
         {/* Roleta horizontal infinita */}
         <div
           ref={containerRef}
-          className="relative overflow-x-hidden overflow-y-visible py-6"
+          className="relative overflow-x-hidden overflow-y-visible py-6 carousel-mask"
           tabIndex={0}
           onKeyDown={(e) => {
             const step = 80
@@ -258,13 +262,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
                     className={`shrink-0 w-[320px] md:w-[360px] ${isHovered ? 'relative z-10' : ''}`}
                     tabIndex={0}
                     animate={{
-                      scale: isHovered ? 1.07 : 1,
-                      filter: isHovered ? 'brightness(1.15)' : 'brightness(0.85)',
-                      opacity: isDimmed ? 0.65 : 1
+                      scale: isHovered ? 1.05 : 1,
+                      opacity: isDimmed ? 0.5 : 1
                     }}
                     transition={{ type: 'spring', stiffness: 260, damping: 20 }}
                   >
-                    <div className={isHovered ? 'ring-2 ring-primary/70 rounded-xl shadow-lg' : ''}>
+                    <div className={isHovered ? 'ring-1 ring-white/[0.15] rounded-xl' : ''}>
                       <ProjectCard
                         {...project}
                         index={idx % (getActiveProjects().length || 1)}
@@ -277,7 +280,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
           ) : (
             <div className="text-center py-12">
               <div className="text-5xl mb-3">📁</div>
-              <p className="text-secondary">
+              <p className="text-dim">
                 {currentLanguage === 'pt' ? 'Nenhum projeto nesta categoria ainda.' : 'No projects in this category yet.'}
               </p>
             </div>

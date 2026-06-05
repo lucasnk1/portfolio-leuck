@@ -13,10 +13,13 @@ interface HeaderProps {
 const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('home')
+  const [isScrolled, setIsScrolled] = useState(false)
   const t = translations[currentLanguage]
 
   useEffect(() => {
     const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20)
+      
       const sections = ['home', 'sobre', 'projetos', 'skills', 'contato']
       const scrollPosition = window.scrollY + 100
 
@@ -55,13 +58,22 @@ const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
   ]
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-gray-800">
+    <header 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? 'bg-background/70 backdrop-blur-2xl border-b border-white/[0.04]' 
+          : 'bg-transparent'
+      }`}
+    >
       <div className="container-custom">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <div className="text-xl font-bold gradient-text">
+          <button 
+            onClick={() => scrollToSection('home')}
+            className="text-xl font-heading font-bold chrome-text tracking-tight"
+          >
             Lucas Leuck
-          </div>
+          </button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
@@ -69,7 +81,7 @@ const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`nav-link ${
+                className={`nav-link text-sm tracking-wide ${
                   activeSection === item.id ? 'nav-link-active' : ''
                 }`}
               >
@@ -90,7 +102,7 @@ const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
             />
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-2 text-secondary hover:text-foreground transition-colors"
+              className="p-2 text-dim hover:text-foreground transition-colors"
             >
               {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -99,14 +111,16 @@ const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden border-t border-gray-800">
-            <nav className="flex flex-col space-y-4 py-4">
+          <div className="md:hidden glass-card rounded-lg mt-2 mb-4">
+            <nav className="flex flex-col space-y-1 p-4">
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className={`nav-link text-left px-4 py-2 ${
-                    activeSection === item.id ? 'nav-link-active' : ''
+                  className={`text-left px-4 py-3 rounded-lg text-sm transition-all duration-200 ${
+                    activeSection === item.id 
+                      ? 'text-foreground bg-white/[0.05]' 
+                      : 'text-dim hover:text-foreground hover:bg-white/[0.03]'
                   }`}
                 >
                   {item.label}
@@ -120,4 +134,4 @@ const Header = ({ currentLanguage, onLanguageChange }: HeaderProps) => {
   )
 }
 
-export default Header 
+export default Header

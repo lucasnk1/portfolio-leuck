@@ -20,14 +20,14 @@ const ResumeDownload = () => {
   return (
     <motion.button
       onClick={handleDownload}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="flex items-center gap-2 px-6 py-3 border border-gray-600 hover:border-gray-400 text-foreground rounded-lg transition-colors duration-200"
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      className="btn-chrome flex items-center gap-2 px-7 py-3.5 text-sm font-medium"
     >
-      <Download size={20} />
+      <Download size={18} />
       <span>Download CV</span>
     </motion.button>
   )
 }
 
-export default ResumeDownload 
+export default ResumeDownload

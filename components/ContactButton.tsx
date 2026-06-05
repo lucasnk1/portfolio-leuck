@@ -21,14 +21,14 @@ const ContactButton = ({ currentLanguage }: ContactButtonProps) => {
   return (
     <motion.button
       onClick={scrollToContact}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      className="btn-primary flex items-center gap-2 px-6 py-3 shadow-lg hover:shadow-xl"
+      whileHover={{ scale: 1.03 }}
+      whileTap={{ scale: 0.97 }}
+      className="btn-primary flex items-center gap-2 px-7 py-3.5 text-sm font-semibold"
     >
-      <MessageCircle size={20} />
+      <MessageCircle size={18} />
       <span>{t.contact.title}</span>
     </motion.button>
   )
 }
 
-export default ContactButton 
+export default ContactButton

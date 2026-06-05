@@ -107,6 +107,14 @@ export const skillsData: SkillCategory[] = [
           pt: 'Tecnologias de inteligência artificial que geram conteúdo criativo como texto, imagens e código.',
           en: 'Artificial intelligence technologies that generate creative content such as text, images, and code.'
         }
+      },
+      {
+        name: 'Parallel & Distributed Processes',
+        icon: Cpu,
+        description: {
+          pt: 'Fundamentos de processos paralelos e distribuídos, concorrência, programação paralela, semáforos e monitores.',
+          en: 'Fundamentals of parallel and distributed processes, concurrency, parallel programming, semaphores, and monitors.'
+        }
       }
     ]
   },
@@ -286,6 +294,14 @@ export const skillsData: SkillCategory[] = [
         }
       },
       {
+        name: 'Calculus III',
+        icon: Calculator,
+        description: {
+          pt: 'Cálculo diferencial e integral para funções de múltiplas variáveis e análise vetorial.',
+          en: 'Differential and integral calculus for multivariable functions and vector analysis.'
+        }
+      },
+      {
         name: 'Probability & Statistics',
         icon: BarChart,
         description: {
@@ -315,6 +331,14 @@ export const skillsData: SkillCategory[] = [
         description: {
           pt: 'Estudo de vetores, matrizes e transformações lineares.',
           en: 'Study of vectors, matrices, and linear transformations.'
+        }
+      },
+      {
+        name: 'Comparative Inference',
+        icon: BarChart,
+        description: {
+          pt: 'Análise estatística comparada e métodos de inferência estatística.',
+          en: 'Comparative statistical analysis and statistical inference methods.'
         }
       }
     ]

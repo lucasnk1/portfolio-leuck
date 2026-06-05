@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Linkedin, Github, Mail } from 'lucide-react'
+import { Linkedin, Github, Mail, Zap, BarChart3, Brain } from 'lucide-react'
 import { Language, translations } from '@/lib/i18n'
 import Header from '@/components/Header'
 import ProjectsSection from '@/components/ProjectsSection'
@@ -10,6 +10,7 @@ import Footer from '@/components/Footer'
 import ResumeDownload from '@/components/ResumeDownload'
 import ContactButton from '@/components/ContactButton'
 import SkillsSection from '@/components/SkillsSection'
+import { SparkleField } from '@/components/SparkleDecoration'
 
 export default function Home() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('pt')
@@ -23,27 +24,33 @@ export default function Home() {
       />
       
       {/* Home Section */}
-      <section id="home" className="section-padding min-h-screen flex items-center justify-center">
-        <div className="container-custom text-center">
+      <section id="home" className="section-padding min-h-screen flex items-center justify-center relative overflow-hidden">
+        {/* Sparkle decorations */}
+        <SparkleField />
+        
+        {/* Ambient glow behind hero */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none" />
+        
+        <div className="container-custom text-center relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Profile Photo */}
-            <div className="mb-8 flex justify-center">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-primary/20 shadow-2xl">
+            <div className="mb-10 flex justify-center">
+              <div className="profile-ring w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden">
                 <img
                   src="/profile.jpg"
                   alt="Lucas Leuck"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover rounded-full"
                   onError={(e) => {
                     // Fallback para quando a imagem não carregar
                     const target = e.target as HTMLImageElement
                     target.style.display = 'none'
                     target.parentElement!.innerHTML = `
-                      <div class="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                        <span class="text-4xl font-bold text-primary">LL</span>
+                      <div class="w-full h-full bg-chrome-900 flex items-center justify-center rounded-full">
+                        <span class="text-4xl font-heading font-bold chrome-text">LL</span>
                       </div>
                     `
                   }}
@@ -51,22 +58,40 @@ export default function Home() {
               </div>
             </div>
 
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold mb-6">
+            <motion.h1 
+              className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold mb-6 tracking-tight chrome-text-animated"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.2 }}
+            >
               {t.home.title}
-            </h1>
-            <p className="text-xl sm:text-2xl text-secondary mb-8 max-w-3xl mx-auto leading-relaxed">
+            </motion.h1>
+            
+            <motion.p 
+              className="text-lg sm:text-xl text-dim mb-10 max-w-2xl mx-auto leading-relaxed font-light"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.4 }}
+            >
               {t.home.subtitle}
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            </motion.p>
+            
+            <motion.div 
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, delay: 0.6 }}
+            >
               <ContactButton currentLanguage={currentLanguage} />
               <ResumeDownload />
-            </div>
+            </motion.div>
           </motion.div>
+
         </div>
       </section>
 
       {/* Sobre Section */}
-      <section id="sobre" className="section-padding">
+      <section id="sobre" className="section-padding relative">
         <div className="container-custom">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -75,8 +100,8 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t.about.title}</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
+            <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.about.title}</h2>
+            <div className="divider-chrome w-24 mx-auto"></div>
           </motion.div>
           
           <motion.div
@@ -86,23 +111,33 @@ export default function Home() {
             viewport={{ once: true }}
             className="max-w-3xl mx-auto text-center"
           >
-            <p className="text-lg text-secondary leading-relaxed mb-8">
+            <p className="text-lg text-dim leading-relaxed mb-12 font-light">
               {t.about.description}
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{t.about.python}</div>
-                <p className="text-secondary">{t.about.pythonDesc}</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{t.about.powerBI}</div>
-                <p className="text-secondary">{t.about.powerBIDesc}</p>
-              </div>
-              <div className="text-center">
-                <div className="text-3xl font-bold text-primary mb-2">{t.about.aiML}</div>
-                <p className="text-secondary">{t.about.aiMLDesc}</p>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+              {[
+                { title: t.about.python, desc: t.about.pythonDesc, icon: <Zap size={28} /> },
+                { title: t.about.powerBI, desc: t.about.powerBIDesc, icon: <BarChart3 size={28} /> },
+                { title: t.about.aiML, desc: t.about.aiMLDesc, icon: <Brain size={28} /> },
+              ].map((item, i) => (
+                <motion.div 
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
+                  viewport={{ once: true }}
+                  className="glass-card rounded-xl p-8 text-center group flex flex-col items-center"
+                >
+                  <div className="mb-4 text-foreground bg-white/[0.04] p-3 rounded-lg group-hover:bg-white/[0.08] transition-all duration-300 flex items-center justify-center">
+                    {item.icon}
+                  </div>
+                  <div className="text-2xl font-heading font-bold text-foreground mb-2 group-hover:chrome-text transition-all duration-300">
+                    {item.title}
+                  </div>
+                  <p className="text-dim text-sm">{item.desc}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
@@ -124,8 +159,8 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t.contact.title}</h2>
-            <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
+            <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.contact.title}</h2>
+            <div className="divider-chrome w-24 mx-auto"></div>
           </motion.div>
           
           <motion.div
@@ -135,40 +170,46 @@ export default function Home() {
             viewport={{ once: true }}
             className="max-w-2xl mx-auto"
           >
-            <p className="text-center text-secondary mb-8">
+            <p className="text-center text-dim mb-10 font-light">
               {t.contact.subtitle}
             </p>
             
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <a
                 href="https://www.linkedin.com/in/lucasleuck"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
+                className="glass-card flex flex-col items-center gap-4 p-8 rounded-xl group"
               >
-                <Linkedin size={32} className="text-blue-500" />
-                <span className="font-medium">{t.contact.linkedin}</span>
-                <span className="text-sm text-secondary">lucas leuck</span>
+                <div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center group-hover:bg-white/[0.1] transition-all duration-300">
+                  <Linkedin size={24} className="text-dim group-hover:text-foreground transition-colors duration-300" />
+                </div>
+                <span className="font-medium text-foreground">{t.contact.linkedin}</span>
+                <span className="text-sm text-dim">lucas leuck</span>
               </a>
               
               <a
                 href="https://github.com/lucasnk1"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
+                className="glass-card flex flex-col items-center gap-4 p-8 rounded-xl group"
               >
-                <Github size={32} className="text-foreground" />
-                <span className="font-medium">{t.contact.github}</span>
-                <span className="text-sm text-secondary">lucasnk1</span>
+                <div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center group-hover:bg-white/[0.1] transition-all duration-300">
+                  <Github size={24} className="text-dim group-hover:text-foreground transition-colors duration-300" />
+                </div>
+                <span className="font-medium text-foreground">{t.contact.github}</span>
+                <span className="text-sm text-dim">lucasnk1</span>
               </a>
               
               <a
                 href="mailto:lucas.oliveria014@edu.pucrs.br"
-                className="flex flex-col items-center gap-3 p-6 bg-gray-900/50 border border-gray-800 rounded-lg hover:border-gray-600 transition-colors duration-200"
+                className="glass-card flex flex-col items-center gap-4 p-8 rounded-xl group"
               >
-                <Mail size={32} className="text-green-500" />
-                <span className="font-medium">{t.contact.email}</span>
-                <span className="text-sm text-secondary">lucas.oliveria014@edu.pucrs.br</span>
+                <div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center group-hover:bg-white/[0.1] transition-all duration-300">
+                  <Mail size={24} className="text-dim group-hover:text-foreground transition-colors duration-300" />
+                </div>
+                <span className="font-medium text-foreground">{t.contact.email}</span>
+                <span className="text-sm text-dim">lucas.oliveria014@edu.pucrs.br</span>
               </a>
             </div>
           </motion.div>
@@ -178,4 +219,4 @@ export default function Home() {
       <Footer currentLanguage={currentLanguage} />
     </main>
   )
-} 
+}

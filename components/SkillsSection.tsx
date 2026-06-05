@@ -74,11 +74,11 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t.skills.title}</h2>
-          <div className="w-24 h-1 bg-gradient-to-r from-primary to-accent mx-auto"></div>
+          <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.skills.title}</h2>
+          <div className="divider-chrome w-24 mx-auto"></div>
         </motion.div>
         
-        <div className="space-y-6 max-w-6xl mx-auto">
+        <div className="space-y-4 max-w-6xl mx-auto">
           {skillsData.map((category, categoryIndex) => {
             const isExpanded = expandedCategories.has(category.title[currentLanguage])
             
@@ -89,30 +89,32 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: categoryIndex * 0.1 }}
                 viewport={{ once: true }}
-                className="bg-gray-900/30 border border-gray-800 rounded-lg overflow-hidden"
+                className="glass-card rounded-xl overflow-hidden"
               >
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category.title[currentLanguage])}
-                  className="w-full p-6 flex items-center justify-between hover:bg-gray-800/30 transition-colors duration-200"
+                  className="w-full p-6 flex items-center justify-between hover:bg-white/[0.02] transition-colors duration-300"
                 >
                   <div className="flex items-center gap-4">
-                    <Folder 
-                      size={24} 
-                      className={`transition-colors duration-200 ${
-                        isExpanded ? 'text-primary' : 'text-secondary'
-                      }`} 
-                    />
-                    <h3 className="text-xl font-semibold text-foreground">
+                    <div className="w-9 h-9 rounded-lg bg-white/[0.04] flex items-center justify-center">
+                      <Folder 
+                        size={18} 
+                        className={`transition-colors duration-300 ${
+                          isExpanded ? 'text-foreground' : 'text-dim'
+                        }`} 
+                      />
+                    </div>
+                    <h3 className="text-lg font-heading font-semibold text-foreground tracking-tight">
                       {category.title[currentLanguage]}
                     </h3>
-                    <span className="px-3 py-1 bg-gray-800 text-secondary text-sm rounded-full">
+                    <span className="px-2.5 py-0.5 bg-white/[0.05] text-dim text-xs rounded-full border border-white/[0.06]">
                       {category.skills.length}
                     </span>
                   </div>
                   <ChevronDown 
-                    size={20} 
-                    className={`text-secondary transition-transform duration-200 ${
+                    size={18} 
+                    className={`text-dim transition-transform duration-300 ${
                       isExpanded ? 'rotate-180' : ''
                     }`} 
                   />
@@ -129,7 +131,8 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
                       className="overflow-hidden"
                     >
                       <div className="p-6 pt-0">
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                        <div className="divider-chrome mb-6"></div>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                           {category.skills.map((skill, skillIndex) => (
                             <SkillCard
                               key={skill.name}
@@ -158,28 +161,30 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: 300 }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed top-1/2 right-8 transform -translate-y-1/2 w-80 bg-gray-900/95 backdrop-blur-md border border-gray-800 rounded-lg p-6 shadow-2xl z-50"
+              className="fixed top-1/2 right-8 transform -translate-y-1/2 w-80 glass-card-strong rounded-xl p-6 shadow-2xl z-50"
             >
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <activeSkillData.icon size={24} className="text-primary" />
-                  <h3 className="text-xl font-semibold text-foreground">{activeSkillData.name}</h3>
+                  <div className="w-10 h-10 rounded-lg bg-white/[0.05] flex items-center justify-center">
+                    <activeSkillData.icon size={20} className="text-foreground" />
+                  </div>
+                  <h3 className="text-lg font-heading font-semibold text-foreground">{activeSkillData.name}</h3>
                 </div>
                 <button
                   onClick={() => setActiveSkill(null)}
-                  className="text-secondary hover:text-foreground transition-colors p-1 rounded-full hover:bg-gray-800"
+                  className="text-dim hover:text-foreground transition-colors p-1.5 rounded-lg hover:bg-white/[0.05]"
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
-              <p className="text-secondary leading-relaxed mb-4">
+              <p className="text-dim text-sm leading-relaxed mb-4">
                 {activeSkillData.description[currentLanguage]}
               </p>
               
               {/* Progress Bar */}
-              <div className="w-full bg-gray-800 rounded-full h-1">
+              <div className="w-full bg-white/[0.05] rounded-full h-0.5">
                 <motion.div
-                  className="bg-gradient-to-r from-primary to-accent h-1 rounded-full"
+                  className="bg-gradient-to-r from-white/40 to-white/10 h-0.5 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 0.1, ease: "linear" }}
@@ -193,4 +198,4 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
   )
 }
 
-export default SkillsSection 
+export default SkillsSection
