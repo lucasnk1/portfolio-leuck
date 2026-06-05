@@ -27,11 +27,11 @@ const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, lea
       <div className="flex flex-col h-full">
         <div className="flex-1">
           {imageUrl && (
-            <div className="w-full mb-5 overflow-hidden rounded-lg">
+            <div className="w-full h-48 mb-5 overflow-hidden rounded-lg bg-white/[0.01] border border-white/[0.04] flex items-center justify-center">
               <img
                 src={imageUrl}
                 alt={imageAlt || title}
-                className="w-full max-h-[520px] object-contain pointer-events-none select-none group-hover:scale-[1.02] transition-transform duration-500"
+                className="max-w-full max-h-full object-contain pointer-events-none select-none group-hover:scale-[1.03] transition-transform duration-500"
                 loading="lazy"
               />
             </div>
