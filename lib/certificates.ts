@@ -56,7 +56,7 @@ const FILE_METADATA_OVERRIDES: Record<string, { title: string; institution: stri
     logo: LOGOS.microsoft,
     category: 'ia',
   },
-  'SOA Publicidade digital': {
+  'SOA leadership for digital world': {
     title: 'Leadership for Digital World',
     institution: 'IE University',
     logo: LOGOS.ieUniversity,
