@@ -10,6 +10,7 @@ import Footer from '@/components/Footer'
 import ResumeDownload from '@/components/ResumeDownload'
 import ContactButton from '@/components/ContactButton'
 import SkillsSection from '@/components/SkillsSection'
+import CertificatesSection from '@/components/CertificatesSection'
 import { SparkleField } from '@/components/SparkleDecoration'
 
 export default function Home() {
@@ -148,6 +149,9 @@ export default function Home() {
 
       {/* Skills Section */}
       <SkillsSection currentLanguage={currentLanguage} />
+
+      {/* Certificados Section */}
+      <CertificatesSection currentLanguage={currentLanguage} />
 
       {/* Contato Section */}
       <section id="contato" className="section-padding">

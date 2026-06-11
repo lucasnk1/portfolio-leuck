@@ -6,6 +6,7 @@ export interface Translations {
     about: string
     projects: string
     skills: string
+    certificates: string
     contact: string
   }
   home: {
@@ -28,6 +29,18 @@ export interface Translations {
     title: string
     programming: string
     academic: string
+  }
+  certificates: {
+    title: string
+    subtitle: string
+    viewCertificate: string
+    searchPlaceholder: string
+    emptyState: string
+    stats: {
+      totalCertificates: string
+      totalInstitutions: string
+      totalCategories: string
+    }
   }
   skills: {
     title: string
@@ -58,6 +71,7 @@ export const translations: Record<Language, Translations> = {
       about: 'Sobre',
       projects: 'Projetos',
       skills: 'Habilidades',
+      certificates: 'Certificados',
       contact: 'Contato'
     },
     home: {
@@ -80,6 +94,18 @@ export const translations: Record<Language, Translations> = {
       title: 'Projetos',
       programming: 'Projetos de Programação',
       academic: 'Projetos Acadêmicos'
+    },
+    certificates: {
+      title: 'Certificados',
+      subtitle: 'Cursos e certificações concluídos durante minha trajetória em tecnologia, ciência de dados e inteligência artificial.',
+      viewCertificate: 'Visualizar Certificado',
+      searchPlaceholder: 'Buscar certificado pelo nome...',
+      emptyState: 'Nenhum certificado encontrado com os filtros atuais.',
+      stats: {
+        totalCertificates: 'Total de certificados',
+        totalInstitutions: 'Total de instituições',
+        totalCategories: 'Categorias estudadas'
+      }
     },
     skills: {
       title: 'Habilidades',
@@ -108,6 +134,7 @@ export const translations: Record<Language, Translations> = {
       about: 'About',
       projects: 'Projects',
       skills: 'Skills',
+      certificates: 'Certificates',
       contact: 'Contact'
     },
     home: {
@@ -130,6 +157,18 @@ export const translations: Record<Language, Translations> = {
       title: 'Projects',
       programming: 'Programming Projects',
       academic: 'Academic Projects'
+    },
+    certificates: {
+      title: 'Certificates',
+      subtitle: 'Courses and certifications completed during my journey in technology, data science and artificial intelligence.',
+      viewCertificate: 'View Certificate',
+      searchPlaceholder: 'Search certificates by name...',
+      emptyState: 'No certificates found with the current filters.',
+      stats: {
+        totalCertificates: 'Total certificates',
+        totalInstitutions: 'Total institutions',
+        totalCategories: 'Studied categories'
+      }
     },
     skills: {
       title: 'Skills',
