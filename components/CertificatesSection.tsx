@@ -77,7 +77,7 @@ const CertificatesSection = ({ currentLanguage }: CertificatesSectionProps) => {
         }
       } catch {
         if (isMounted) {
-          setError('Não foi possível carregar os certificados no momento.')
+          setError(t.certificates.loadError)
         }
       } finally {
         if (isMounted) {
@@ -274,7 +274,7 @@ const CertificateCard = ({ certificate, index, viewLabel, categoryLabel }: Certi
 
         <div className="min-w-0 flex-1">
           <span className="inline-flex mb-3 px-3 py-1 rounded-full text-xs font-medium bg-white/[0.05] text-dim border border-white/[0.08]">
-            {certificate.categoryLabel}
+            {categoryLabel}
           </span>
           <h3 className="text-xl font-heading font-semibold text-foreground tracking-tight leading-tight mb-2">
             {certificate.title}
