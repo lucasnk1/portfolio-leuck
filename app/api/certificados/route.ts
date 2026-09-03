@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { readdir } from 'fs/promises'
 import path from 'path'
-import { buildCertificateRecord } from '@/lib/certificates'
+import { buildCertificateRecord, EXTERNAL_CERTIFICATES } from '@/lib/certificates'
 
 export async function GET() {
   try {
@@ -12,6 +12,7 @@ export async function GET() {
       .filter((fileName) => fileName.toLowerCase().endsWith('.pdf'))
       .sort((left, right) => left.localeCompare(right, 'pt-BR'))
       .map((fileName) => buildCertificateRecord(fileName))
+      .concat(EXTERNAL_CERTIFICATES)
 
     return NextResponse.json(certificates, {
       headers: {

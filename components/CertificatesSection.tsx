@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ExternalLink, Search } from 'lucide-react'
+import { ChevronDown, ChevronUp, ExternalLink, Search } from 'lucide-react'
 import { Language, translations } from '@/lib/i18n'
 import {
   CertificateFilter,
@@ -56,6 +56,8 @@ const CertificatesSection = ({ currentLanguage }: CertificatesSectionProps) => {
   const [error, setError] = useState<string | null>(null)
   const [activeFilter, setActiveFilter] = useState<CertificateFilter>('all')
   const [searchTerm, setSearchTerm] = useState('')
+  const [showAll, setShowAll] = useState(false)
+  const initialVisibleCount = 6
 
   useEffect(() => {
     let isMounted = true
@@ -117,6 +119,15 @@ const CertificatesSection = ({ currentLanguage }: CertificatesSectionProps) => {
       return matchesFilter && matchesSearch
     })
   }, [activeFilter, certificates, searchTerm])
+
+  useEffect(() => {
+    setShowAll(false)
+  }, [activeFilter, searchTerm])
+
+  const visibleCertificates = showAll
+    ? filteredCertificates
+    : filteredCertificates.slice(0, initialVisibleCount)
+  const hasMoreCertificates = filteredCertificates.length > initialVisibleCount
 
   return (
     <section id="certificados" className="section-padding relative">
@@ -215,17 +226,40 @@ const CertificatesSection = ({ currentLanguage }: CertificatesSectionProps) => {
             <p>{t.certificates.emptyState}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {filteredCertificates.map((certificate, index) => (
-              <CertificateCard
-                key={certificate.slug}
-                certificate={certificate}
-                index={index}
-                viewLabel={t.certificates.viewCertificate}
-                categoryLabel={categoryLabels[currentLanguage][certificate.category]}
-              />
-            ))}
-          </div>
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+              {visibleCertificates.map((certificate, index) => (
+                <CertificateCard
+                  key={certificate.slug}
+                  certificate={certificate}
+                  index={index}
+                  viewLabel={t.certificates.viewCertificate}
+                  categoryLabel={categoryLabels[currentLanguage][certificate.category]}
+                />
+              ))}
+            </div>
+
+            {hasMoreCertificates && (
+              <div className="flex justify-center mt-10">
+                <button
+                  onClick={() => setShowAll((prev) => !prev)}
+                  className="btn-chrome inline-flex items-center gap-2 px-6 py-3 text-sm font-medium"
+                >
+                  {showAll ? (
+                    <>
+                      <ChevronUp size={16} />
+                      <span>{t.certificates.showLess}</span>
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown size={16} />
+                      <span>{t.certificates.showMore}</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </section>

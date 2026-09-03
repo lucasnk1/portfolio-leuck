@@ -37,6 +37,8 @@ export interface Translations {
     searchPlaceholder: string
     emptyState: string
     loadError: string
+    showMore: string
+    showLess: string
     stats: {
       totalCertificates: string
       totalInstitutions: string
@@ -103,6 +105,8 @@ export const translations: Record<Language, Translations> = {
       searchPlaceholder: 'Buscar certificado pelo nome...',
       emptyState: 'Nenhum certificado encontrado com os filtros atuais.',
       loadError: 'Não foi possível carregar os certificados no momento.',
+      showMore: 'Ver mais certificados',
+      showLess: 'Ver menos',
       stats: {
         totalCertificates: 'Total de certificados',
         totalInstitutions: 'Total de instituições',
@@ -167,6 +171,8 @@ export const translations: Record<Language, Translations> = {
       searchPlaceholder: 'Search certificates by name...',
       emptyState: 'No certificates found with the current filters.',
       loadError: 'Could not load certificates at this time.',
+      showMore: 'Show more certificates',
+      showLess: 'Show less',
       stats: {
         totalCertificates: 'Total certificates',
         totalInstitutions: 'Total institutions',

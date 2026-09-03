@@ -19,6 +19,8 @@ const LOGOS = {
   ibm: '/certificados/logosEmpresas/ibm.png',
   ieUniversity: '/certificados/logosEmpresas/IE_University_logo.png',
   universityOfChicago: '/certificados/logosEmpresas/University_of_Chicago.png',
+  googleDeepmind: '/certificados/logosEmpresas/google-deepmind-logo.png',
+  pucrs: '/certificados/logosEmpresas/apple-developer-academy-pucrs-logo.png',
 } as const
 
 const PREFIX_METADATA: Record<string, { institution: string; defaultLogo: string }> = {
@@ -29,6 +31,10 @@ const PREFIX_METADATA: Record<string, { institution: string; defaultLogo: string
   FB: {
     institution: 'Fundação Bradesco',
     defaultLogo: LOGOS.microsoft,
+  },
+  PUCRS: {
+    institution: 'Apple Developer Academy | PUCRS',
+    defaultLogo: LOGOS.pucrs,
   },
 }
 
@@ -66,6 +72,18 @@ const FILE_METADATA_OVERRIDES: Record<string, { title: string; institution: stri
     title: 'Storytelling',
     institution: 'University of Chicago',
     logo: LOGOS.universityOfChicago,
+    category: 'other',
+  },
+  'PUCRS Fundamentals of Programming with AI': {
+    title: 'Fundamentals of Programming with AI',
+    institution: 'Apple Developer Academy | PUCRS',
+    logo: LOGOS.pucrs,
+    category: 'ia',
+  },
+  'PUCRS Practical Scrum Guide': {
+    title: 'Practical Scrum Guide',
+    institution: 'Apple Developer Academy | PUCRS',
+    logo: LOGOS.pucrs,
     category: 'other',
   },
 }
@@ -173,6 +191,36 @@ export const buildCertificateRecord = (fileName: string): CertificateRecord => {
     logoUrl,
   }
 }
+
+// Certificados sem PDF local: credenciais verificáveis por link externo (ex.: badges do Google Skills).
+export const EXTERNAL_CERTIFICATES: CertificateRecord[] = [
+  {
+    fileName: 'google-build-your-own-small-language-model',
+    fileBaseName: 'google-build-your-own-small-language-model',
+    slug: 'build-your-own-small-language-model',
+    prefix: 'GOOGLE',
+    title: 'Build Your Own Small Language Model',
+    institution: 'Google DeepMind',
+    category: 'machine-learning',
+    categoryLabel: getCertificateCategoryLabel('machine-learning'),
+    pdfUrl:
+      'https://www.skills.google/public_profiles/3c2c9ece-a54d-44dc-bc45-60028459c324/badges/25373031',
+    logoUrl: LOGOS.googleDeepmind,
+  },
+  {
+    fileName: 'google-represent-your-language-data',
+    fileBaseName: 'google-represent-your-language-data',
+    slug: 'represent-your-language-data',
+    prefix: 'GOOGLE',
+    title: 'Represent Your Language Data',
+    institution: 'Google DeepMind',
+    category: 'machine-learning',
+    categoryLabel: getCertificateCategoryLabel('machine-learning'),
+    pdfUrl:
+      'https://www.skills.google/public_profiles/3c2c9ece-a54d-44dc-bc45-60028459c324/badges/25518056',
+    logoUrl: LOGOS.googleDeepmind,
+  },
+]
 
 export const getCertificateStats = (certificates: CertificateRecord[]) => {
   const institutionCount = new Set(certificates.map((certificate) => certificate.institution)).size

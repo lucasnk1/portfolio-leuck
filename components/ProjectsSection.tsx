@@ -74,6 +74,12 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
       description: "Este projeto apresenta exemplos e exercicios de sincronizacao de goroutines, com enfase em dois mecanismos: Semaforo contador com golang.org/x/sync/semaphore Monitor com sync.Cond",
       technologies: ["Go (Golang)", "Goroutines", "Semáforos", "sync.Cond", "Concorrência"],
       githubUrl: "https://github.com/lucasnk1/Semaforos-e-Monitores-Go",
+    },
+    {
+      title: "Masked Face Recognition Pipeline",
+      description: "Estudo e implementação de um pipeline de reconhecimento facial com rostos mascarados, utilizando embeddings de CNN e bancos de dados vetoriais (ChromaDB/FaceDB) para busca por similaridade.",
+      technologies: ["Python", "ChromaDB", "FaceDB", "CNN", "Embeddings", "ipynb"],
+      githubUrl: "https://github.com/lucasnk1/masked-face-recognition-pipeline",
     }
     // Adicione mais projetos de programação aqui
   ]
