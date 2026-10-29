@@ -32,7 +32,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   const x = useMotionValue(0)
 
   // Agora: Acadêmicos
-  const academicProjects: Project[] = [
+  const fallbackAcademicProjects: Project[] = [
     {
       title: "Tower Defense Concorrente em GO",
       description: "Tower Defense Concorrente é um jogo de defesa de torres implementado em Go, utilizando técnicas avançadas de programação concorrente com goroutines e channels. O jogo demonstra conceitos de processamento paralelo e distribuído através de uma arquitetura baseada em entidades autônomas que se comunicam via canais de mensagens.",
@@ -85,7 +85,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   ]
 
   // Agora: Pessoais
-  const personalProjects: Project[] = [
+  const fallbackPersonalProjects: Project[] = [
     {
        title: "Elyra",
        description: "Uma plataforma de inteligência tecnológica movida por IA que reúne e organiza as notícias mais relevantes do ecossistema tech em tempo real.",
@@ -113,6 +113,26 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
     }
     // Adicione mais projetos acadêmicos aqui
   ]
+
+  const [githubProjects, setGithubProjects] = useState<{ academic: Project[]; personal: Project[] } | null>(null)
+
+  useEffect(() => {
+    let isMounted = true
+
+    fetch('/api/projects')
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((data) => {
+        if (isMounted && data.academic?.length && data.personal?.length) setGithubProjects(data)
+      })
+      .catch(() => {})
+
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
+  const academicProjects = githubProjects?.academic ?? fallbackAcademicProjects
+  const personalProjects = githubProjects?.personal ?? fallbackPersonalProjects
 
   const tabs = [
     {
