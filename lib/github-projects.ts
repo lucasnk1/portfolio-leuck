@@ -2,9 +2,34 @@ export interface GithubProject {
   title: string
   description: string
   technologies: string[]
-  githubUrl: string
+  githubUrl?: string
   liveUrl?: string
+  learnMoreUrl?: string
+  imageUrl?: string
+  imageAlt?: string
 }
+
+const IMAGE_OVERRIDES: Record<string, { imageUrl: string; imageAlt: string }> = {
+  'lucasnk1/elyra': {
+    imageUrl: '/printhome.png',
+    imageAlt: 'Página inicial da plataforma Elyra',
+  },
+  'cafezinho-labs/data-detective': {
+    imageUrl: '/print-datadetective.jpeg',
+    imageAlt: 'Interface do Data Detective mostrando um caso de investigação de dados',
+  },
+}
+
+const MANUAL_PERSONAL_PROJECTS: GithubProject[] = [
+  {
+    title: 'eBook: JOVENS E A CORRIDA PELO DINHEIRO',
+    description: 'Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.',
+    technologies: [],
+    learnMoreUrl: 'https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?usp=sharing',
+    imageUrl: '/ebook-capa.jpg',
+    imageAlt: 'Capa do eBook Jovens e a Corrida pelo Dinheiro',
+  },
+]
 
 export type ProjectCategory = 'academic' | 'personal'
 
@@ -55,6 +80,7 @@ const getRepoProject = async (fullName: string): Promise<GithubProject | null> =
     technologies,
     githubUrl: repo.html_url,
     liveUrl: repo.homepage || undefined,
+    ...IMAGE_OVERRIDES[String(repo.full_name).toLowerCase()],
   }
 }
 
@@ -62,5 +88,7 @@ export const getGithubProjects = async (category: ProjectCategory): Promise<Gith
   const slugs = await getRepoSlugsFromList(LIST_SLUGS[category])
   const projects = await Promise.all(slugs.map(getRepoProject))
 
-  return projects.filter((project): project is GithubProject => project !== null)
+  const githubProjects = projects.filter((project): project is GithubProject => project !== null)
+
+  return category === 'personal' ? [...githubProjects, ...MANUAL_PERSONAL_PROJECTS] : githubProjects
 }
