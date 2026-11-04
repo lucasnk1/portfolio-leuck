@@ -8,11 +8,71 @@ import { Language, translations } from '@/lib/i18n'
  * Os itens vêm do currículo (public/resume-lucas-leuck.pdf); edite abaixo.
  */
 
+interface Org {
+  name: string
+  logo: string
+  linkedin: string
+  /** 'cover' para logos quadradas com fundo próprio; 'contain' para brasões/logos altas */
+  fit: 'cover' | 'contain'
+}
+
 interface Step {
   period: Record<Language, string>
   title: Record<Language, string>
   detail: Record<Language, string>
+  /** sem org = sem logo (ex.: segunda vaga na mesma empresa) */
+  org?: Org
   current?: boolean
+}
+
+const ORGS = {
+  lpdb: {
+    name: 'LPDB Advogados Associados',
+    logo: '/logos/trajetoria/lpdb.png',
+    linkedin: 'https://www.linkedin.com/company/lpdbadvogados/home/',
+    fit: 'cover',
+  },
+  stu: {
+    name: 'Skate Total Urbe',
+    logo: '/logos/trajetoria/stu.png',
+    linkedin: 'https://www.linkedin.com/company/skate-total-urbe/home/',
+    fit: 'cover',
+  },
+  pucrs: {
+    name: 'PUCRS',
+    logo: '/logos/trajetoria/pucrs.png',
+    linkedin: 'https://www.linkedin.com/school/pucrs/posts/',
+    fit: 'contain',
+  },
+  fiverr: {
+    name: 'Fiverr',
+    logo: '/logos/trajetoria/fiverr.png',
+    linkedin: 'https://www.linkedin.com/company/fiverr-com/posts/',
+    fit: 'cover',
+  },
+} satisfies Record<string, Org>
+
+/** Logo da empresa: preto e branco, ganha a cor original no hover e abre o LinkedIn */
+function OrgLogo({ org, lang }: { org: Org; lang: Language }) {
+  return (
+    <a
+      href={org.linkedin}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={lang === 'pt' ? `LinkedIn de ${org.name}` : `${org.name} on LinkedIn`}
+      title={org.name}
+      className={`group/logo relative z-10 flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl ring-1 ring-white/10 transition-all duration-500 ease-out hover:-translate-y-0.5 hover:ring-white/30 hover:shadow-[0_8px_24px_rgba(0,0,0,0.45)] ${
+        org.fit === 'contain' ? 'bg-white p-1' : 'bg-chrome-900'
+      }`}
+    >
+      <img
+        src={org.logo}
+        alt={org.name}
+        loading="lazy"
+        className={`h-full w-full ${org.fit === 'contain' ? 'object-contain' : 'object-cover'} grayscale opacity-70 transition-[filter,opacity,transform] duration-500 ease-out group-hover/logo:grayscale-0 group-hover/logo:opacity-100 group-hover/logo:scale-105`}
+      />
+    </a>
+  )
 }
 
 const PARAGRAPHS: Record<Language, string[]> = {
@@ -34,6 +94,7 @@ const STEPS: Step[] = [
       pt: 'LPDB Advogados Associados · Automação de processos, pipelines de dados, integração de sistemas e soluções com IA',
       en: 'LPDB Advogados Associados · Process automation, data pipelines, system integration and AI solutions',
     },
+    org: ORGS.lpdb,
     current: true,
   },
   {
@@ -43,15 +104,8 @@ const STEPS: Step[] = [
       pt: 'LPDB Advogados Associados · Pesquisas cadastrais, validação de dados e documentos e controles operacionais',
       en: 'LPDB Advogados Associados · Background research, data and document validation and operational controls',
     },
+    org: ORGS.lpdb,
     current: true,
-  },
-  {
-    period: { pt: 'ATÉ 2028', en: 'UNTIL 2028' },
-    title: { pt: 'Bacharelado em Ciência de Dados e IA', en: "Bachelor's in Data Science and AI" },
-    detail: {
-      pt: 'Pontifícia Universidade Católica do Rio Grande do Sul · PUCRS · Formatura prevista para 2028',
-      en: 'Pontifical Catholic University of Rio Grande do Sul · PUCRS · Graduating in 2028',
-    },
   },
   {
     period: { pt: 'MAR 2025', en: 'MAR 2025' },
@@ -60,14 +114,26 @@ const STEPS: Step[] = [
       pt: 'Skate Total Urbe · STU Pro Tour 2025 · Inglês com atletas e imprensa, credenciamento e controle de acesso no Excel',
       en: 'Skate Total Urbe · STU Pro Tour 2025 · English with athletes and press, accreditation and access control in Excel',
     },
+    org: ORGS.stu,
+  },
+  {
+    period: { pt: '2024 – 2028', en: '2024 – 2028' },
+    title: { pt: 'Bacharelado em Ciência de Dados e IA', en: "Bachelor's in Data Science and AI" },
+    detail: {
+      pt: 'Pontifícia Universidade Católica do Rio Grande do Sul · PUCRS · Formatura prevista para 2028',
+      en: 'Pontifical Catholic University of Rio Grande do Sul · PUCRS · Graduating in 2028',
+    },
+    org: ORGS.pucrs,
+    current: true, // ainda cursando
   },
   {
     period: { pt: '2019 – 2021', en: '2019 – 2021' },
-    title: { pt: 'Full-Stack & Designer · Fiverr', en: 'Full-Stack & Designer · Fiverr' },
+    title: { pt: 'Full-Stack & Designer', en: 'Full-Stack & Designer' },
     detail: {
-      pt: 'Designs para lojas virtuais e materiais digitais no Photoshop e Canva, com clientes nacionais e internacionais',
-      en: 'Designs for online stores and digital materials in Photoshop and Canva, for clients in Brazil and abroad',
+      pt: 'Fiverr · Designs para lojas virtuais e materiais digitais no Photoshop e Canva, com clientes nacionais e internacionais',
+      en: 'Fiverr · Designs for online stores and digital materials in Photoshop and Canva, for clients in Brazil and abroad',
     },
+    org: ORGS.fiverr,
   },
 ]
 
@@ -110,7 +176,7 @@ export default function AboutSection({ currentLanguage }: { currentLanguage: Lan
           <ol className="relative">
             {/* linha vertical da linha do tempo */}
             <motion.span
-              className="absolute left-[5px] top-2 bottom-2 w-px bg-white/15 origin-top"
+              className="absolute left-[5px] top-5 bottom-5 w-px bg-white/15 origin-top"
               initial={{ scaleY: 0 }}
               whileInView={{ scaleY: 1 }}
               viewport={{ once: true }}
@@ -124,24 +190,26 @@ export default function AboutSection({ currentLanguage }: { currentLanguage: Lan
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: 0.15 + i * 0.1 }}
-                className="relative grid grid-cols-[auto_1fr] sm:grid-cols-[180px_1fr] gap-x-6 gap-y-1 pb-9 last:pb-0"
+                className="relative flex items-start gap-4 sm:gap-5 pb-9 last:pb-0"
               >
-                <div className="flex items-start gap-5 sm:gap-6 row-span-2 sm:row-span-1">
-                  <span
-                    className={`relative z-10 mt-1.5 h-[11px] w-[11px] shrink-0 rounded-full border ${
-                      s.current
-                        ? 'border-white bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]'
-                        : 'border-chrome-400 bg-background'
-                    }`}
-                  />
-                  <span className="hidden sm:block font-mono text-xs tracking-[0.15em] text-chrome-300 pt-0.5 whitespace-nowrap">
+                {/* pontinho da linha do tempo */}
+                <span
+                  className={`relative z-10 mt-[17px] h-[11px] w-[11px] shrink-0 rounded-full border ${
+                    s.current
+                      ? 'border-white bg-white shadow-[0_0_12px_rgba(255,255,255,0.7)]'
+                      : 'border-chrome-400 bg-background'
+                  }`}
+                />
+                {/* logo da empresa ao lado do pontinho */}
+                {s.org ? <OrgLogo org={s.org} lang={lang} /> : <span className="w-11 shrink-0" aria-hidden="true" />}
+                <div className="flex-1 min-w-0 grid sm:grid-cols-[150px_1fr] gap-x-6 gap-y-1">
+                  <span className="font-mono text-[11px] sm:text-xs tracking-[0.15em] text-chrome-400 sm:text-chrome-300 sm:pt-3 whitespace-nowrap">
                     {s.period[lang]}
                   </span>
-                </div>
-                <div>
-                  <span className="sm:hidden block font-mono text-[11px] tracking-[0.15em] text-chrome-400 mb-1">{s.period[lang]}</span>
-                  <h3 className="font-heading font-semibold text-foreground text-base sm:text-lg leading-snug">{s.title[lang]}</h3>
-                  <p className="text-sm text-dim mt-1 leading-relaxed">{s.detail[lang]}</p>
+                  <div className="sm:pt-2">
+                    <h3 className="font-heading font-semibold text-foreground text-base sm:text-lg leading-snug">{s.title[lang]}</h3>
+                    <p className="text-sm text-dim mt-1 leading-relaxed">{s.detail[lang]}</p>
+                  </div>
                 </div>
               </motion.li>
             ))}
