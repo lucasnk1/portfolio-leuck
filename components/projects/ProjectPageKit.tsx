@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ArrowUpRight } from 'lucide-react'
 import type { Language } from '@/lib/i18n'
+import NubeMark from '@/components/NubeMark'
 
 /* Peças compartilhadas pelas páginas de detalhes de projeto */
 
@@ -64,9 +65,15 @@ export function ProjectHeader({
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/[0.05]">
       <div className="container-custom px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        <Link href="/#projetos" className="flex items-center gap-2 font-heading font-bold chrome-text tracking-tight">
+        <Link href="/#projetos" className="flex items-center gap-2.5 font-heading text-lg tracking-tight">
           <ArrowLeft size={16} className="text-dim" />
-          Lucas Leuck
+          <span className="flex items-center justify-center w-9 h-9 rounded-xl border border-white/15 bg-white/[0.04]">
+            <NubeMark size={26} />
+          </span>
+          <span className="hidden sm:inline">
+            <span className="font-semibold text-foreground">Lucas</span>
+            <span className="font-semibold text-foreground ml-1">Leuck</span>
+          </span>
         </Link>
         <nav className="flex items-center gap-5 text-sm">
           {links.map((l, i) => (
