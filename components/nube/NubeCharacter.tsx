@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState } from 'react'
 import { motion, type TargetAndTransition } from 'framer-motion'
+import { isLiteDevice, useLiteMode } from '@/lib/use-lite'
 
 export type NubeAction = 'idle' | 'jump' | 'capTrick' | 'wink' | 'shiver' | 'dance' | 'wind' | 'clouds' | 'rage'
 export type NubeMood = 'normal' | 'angry'
@@ -49,7 +50,8 @@ function makeFurTexture(): string {
   let seed = 42
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647)
   ctx.lineCap = 'round'
-  for (let i = 0; i < 2600; i++) {
+  const strokes = isLiteDevice() ? 1300 : 2600
+  for (let i = 0; i < strokes; i++) {
     const x = rnd() * S
     const y = rnd() * S
     const len = 3 + rnd() * 5
@@ -244,13 +246,19 @@ export default function NubeCharacter({
   className,
 }: NubeCharacterProps) {
   const angry = mood === 'angry'
+  const lite = useLiteMode()
   const rawId = useId()
   const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '')
   const [blinking, setBlinking] = useState(false)
   const links = useChainLinks(30)
   const [fur, setFur] = useState<string | null>(furCache)
   useEffect(() => {
-    if (!fur) setFur(makeFurTexture() || null)
+    if (fur) return
+    // gera a textura sem travar a abertura da página
+    const idle = (window as unknown as { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback
+    const run = () => setFur(makeFurTexture() || null)
+    if (idle) idle(run)
+    else setTimeout(run, 200)
   }, [fur])
   const u = (name: string) => `url(#${name}-${id})`
 
@@ -364,11 +372,12 @@ export default function NubeCharacter({
       </defs>
 
       {/* Sombra no chão */}
-      <ellipse cx="100" cy="183" rx="68" ry="8" fill="#000" opacity="0.5" filter={u('soft')} />
+      <ellipse cx="100" cy="183" rx="68" ry="8" fill="#000" opacity={lite ? 0.3 : 0.5} filter={lite ? undefined : u('soft')} />
 
       <motion.g key={`body-${k}`} style={BOTTOM} animate={bodyAnim(action)}>
         {/* Corpo de pelúcia */}
-        <g filter={u('plush')}>
+        {/* no modo leve (celular) o filtro de borda felpuda é desligado: ele é recalculado a cada quadro */}
+        <g filter={lite ? undefined : u('plush')}>
           <path d={BODY} fill={u('body')} />
           <g clipPath={u('clip')}>
             {/* bravo: bochechas vermelhas (por baixo do pelo, a textura continua) */}
@@ -490,12 +499,13 @@ export function MiniCloud({
   blink?: boolean
   angry?: boolean
 }) {
+  const lite = useLiteMode()
   return (
     <svg viewBox="0 0 60 44" width={size} height={size * (44 / 60)} aria-hidden="true" style={{ overflow: 'visible' }}>
       <path
         d="M12 40 C3 40 2 28 10 25 C9 15 19 9 27 13 C31 4 46 5 48 16 C57 17 59 30 52 34 C55 39 51 41 47 40 Z"
         fill={tone}
-        style={{ filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.35))' }}
+        style={lite ? undefined : { filter: 'drop-shadow(0 3px 4px rgba(0,0,0,0.35))' }}
       />
       <ellipse cx="18" cy="34" rx="8" ry="4" fill="#000" opacity="0.06" />
       <g style={{ transformOrigin: '30px 27px', transform: blink ? 'scaleY(0.1)' : 'none', transition: 'transform 80ms' }}>

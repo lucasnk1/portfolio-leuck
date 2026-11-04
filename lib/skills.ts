@@ -46,7 +46,23 @@ import {
   Languages,
   Image,
   Palette as PaletteIcon,
-  Briefcase
+  Briefcase,
+  Eye,
+  Bot,
+  ListChecks,
+  BookOpen,
+  Send,
+  Workflow,
+  Boxes,
+  Braces,
+  Layout,
+  Wind,
+  Bug,
+  Library,
+  Sheet,
+  ScanSearch,
+  FlaskConical,
+  Wand2
 } from 'lucide-react'
 import { Language } from './i18n'
 
@@ -120,6 +136,78 @@ export const skillsData: SkillCategory[] = [
   },
   {
     title: {
+      pt: 'IA & Machine Learning',
+      en: 'AI & Machine Learning'
+    },
+    skills: [
+      {
+        name: 'Machine Learning',
+        icon: Brain,
+        description: {
+          pt: 'Modelos que aprendem padrões a partir de dados; usei SVM, Random Forest e MLP com validação cruzada.',
+          en: 'Models that learn patterns from data; I have used SVM, Random Forest and MLP with cross-validation.'
+        }
+      },
+      {
+        name: 'scikit-learn',
+        icon: FlaskConical,
+        description: {
+          pt: 'Biblioteca Python de machine learning: classificadores, pré-processamento, pipelines e métricas.',
+          en: 'Python machine learning library: classifiers, preprocessing, pipelines and metrics.'
+        }
+      },
+      {
+        name: 'Computer Vision (OpenCV)',
+        icon: Eye,
+        description: {
+          pt: 'Processamento e análise de imagens: segmentação, histogramas, morfologia e extração de características.',
+          en: 'Image processing and analysis: segmentation, histograms, morphology and feature extraction.'
+        }
+      },
+      {
+        name: 'scikit-image',
+        icon: ScanSearch,
+        description: {
+          pt: 'Biblioteca de processamento de imagens; usei para descritores de textura como GLCM e LBP.',
+          en: 'Image processing library; I used it for texture descriptors like GLCM and LBP.'
+        }
+      },
+      {
+        name: 'LLMs & Ollama',
+        icon: Bot,
+        description: {
+          pt: 'Modelos de linguagem rodando localmente com o Ollama, como no Nube, meu assistente pessoal.',
+          en: 'Language models running locally with Ollama, as in Nube, my personal assistant.'
+        }
+      },
+      {
+        name: 'RAG',
+        icon: Library,
+        description: {
+          pt: 'Retrieval-Augmented Generation: busca os trechos certos e gera respostas fundamentadas neles, com avaliação.',
+          en: 'Retrieval-Augmented Generation: retrieves the right passages and grounds answers in them, with evaluation.'
+        }
+      },
+      {
+        name: 'Vector Databases',
+        icon: Boxes,
+        description: {
+          pt: 'Bancos vetoriais como ChromaDB para busca por similaridade de embeddings.',
+          en: 'Vector databases like ChromaDB for embedding similarity search.'
+        }
+      },
+      {
+        name: 'Prompt Engineering',
+        icon: Wand2,
+        description: {
+          pt: 'Escrita de prompts claros e responsáveis para tirar o melhor dos modelos de IA.',
+          en: 'Writing clear and responsible prompts to get the best out of AI models.'
+        }
+      }
+    ]
+  },
+  {
+    title: {
       pt: 'Análise de Dados & BI',
       en: 'Data Analytics & Business Intelligence'
     },
@@ -170,6 +258,38 @@ export const skillsData: SkillCategory[] = [
         description: {
           pt: 'Uso de dados e métodos estatísticos para impulsionar decisões de negócios.',
           en: 'Use of data and statistical methods to drive business decisions.'
+        }
+      },
+      {
+        name: 'SQL',
+        icon: Database,
+        description: {
+          pt: 'Linguagem para consultar e manipular bancos de dados relacionais.',
+          en: 'Language for querying and manipulating relational databases.'
+        }
+      },
+      {
+        name: 'Excel',
+        icon: Sheet,
+        description: {
+          pt: 'Planilhas para organização, análise e controle de dados no dia a dia.',
+          en: 'Spreadsheets for organizing, analyzing and controlling data day to day.'
+        }
+      },
+      {
+        name: 'Exploratory Data Analysis (EDA)',
+        icon: Search,
+        description: {
+          pt: 'Exploração inicial dos dados: distribuições, valores faltantes e balanceamento de classes.',
+          en: 'First look at the data: distributions, missing values and class balance.'
+        }
+      },
+      {
+        name: 'Web Scraping',
+        icon: Bug,
+        description: {
+          pt: 'Coleta automatizada de dados da web com Selenium e crawlers.',
+          en: 'Automated web data collection with Selenium and crawlers.'
         }
       },
       {
@@ -251,6 +371,46 @@ export const skillsData: SkillCategory[] = [
         description: {
           pt: 'Linguagem de estilo para projetar páginas web.',
           en: 'Styling language for designing web pages.'
+        }
+      },
+      {
+        name: 'Go',
+        icon: Braces,
+        description: {
+          pt: 'Linguagem com concorrência nativa; usei goroutines, channels, semáforos e monitores.',
+          en: 'Language with native concurrency; I have used goroutines, channels, semaphores and monitors.'
+        }
+      },
+      {
+        name: 'R',
+        icon: LineChart,
+        description: {
+          pt: 'Linguagem voltada a estatística e análise de dados.',
+          en: 'Language focused on statistics and data analysis.'
+        }
+      },
+      {
+        name: 'Next.js',
+        icon: Layout,
+        description: {
+          pt: 'Framework React para sites e aplicações web, usado neste portfólio e no Elyra.',
+          en: 'React framework for websites and web apps, used in this portfolio and in Elyra.'
+        }
+      },
+      {
+        name: 'Tailwind CSS',
+        icon: Wind,
+        description: {
+          pt: 'Framework de CSS utilitário para construir interfaces rapidamente.',
+          en: 'Utility-first CSS framework for building interfaces quickly.'
+        }
+      },
+      {
+        name: 'Flask & REST APIs',
+        icon: Server,
+        description: {
+          pt: 'Criação de APIs REST em Python com Flask, testadas com requests e Postman.',
+          en: 'Building REST APIs in Python with Flask, tested with requests and Postman.'
         }
       },
       {
@@ -403,6 +563,46 @@ export const skillsData: SkillCategory[] = [
         description: {
           pt: 'Banco de dados relacional de código aberto.',
           en: 'Open-source relational database.'
+        }
+      },
+      {
+        name: 'Scrum',
+        icon: ListChecks,
+        description: {
+          pt: 'Framework ágil para organizar o trabalho em sprints, com papéis e cerimônias.',
+          en: 'Agile framework for organizing work in sprints, with roles and ceremonies.'
+        }
+      },
+      {
+        name: 'Canva',
+        icon: Palette,
+        description: {
+          pt: 'Criação rápida de materiais visuais e peças para redes e apresentações.',
+          en: 'Quick creation of visual materials for social media and presentations.'
+        }
+      },
+      {
+        name: 'Obsidian',
+        icon: BookOpen,
+        description: {
+          pt: 'App de notas em Markdown onde organizo faculdade, trabalho, treino e finanças, conectado ao Nube.',
+          en: 'Markdown notes app where I organize college, work, training and finances, connected to Nube.'
+        }
+      },
+      {
+        name: 'Postman',
+        icon: Send,
+        description: {
+          pt: 'Ferramenta para testar e documentar APIs.',
+          en: 'Tool for testing and documenting APIs.'
+        }
+      },
+      {
+        name: 'Google Colab',
+        icon: Workflow,
+        description: {
+          pt: 'Notebooks Python na nuvem, com GPU, para experimentos de dados e IA.',
+          en: 'Cloud Python notebooks, with GPUs, for data and AI experiments.'
         }
       },
       {

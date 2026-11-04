@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Jovens e a Corrida pelo Dinheiro · Lucas Leuck',
     description: 'O desespero por sucesso na geração da pressa. Leitura gratuita.',
     type: 'book',
-    images: ['/projetos/ebook/capa.webp'],
+    images: [{ url: '/projetos/ebook/og-livro.jpg', width: 1200, height: 630 }],
   },
 }
 

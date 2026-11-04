@@ -44,33 +44,51 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
     [activeProjects],
   )
 
+  // Medidas guardadas (antes eram lidas a cada quadro, o que forçava o navegador a recalcular o layout)
+  const sizes = useRef({ track: 0, container: 0 })
+  const [onScreen, setOnScreen] = useState(false)
+
+  useEffect(() => {
+    const track = trackRef.current
+    const container = containerRef.current
+    if (!track || !container) return
+    const measure = () => {
+      sizes.current = { track: track.scrollWidth, container: container.clientWidth }
+    }
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(track)
+    ro.observe(container)
+    return () => ro.disconnect()
+  }, [activeTab])
+
+  // só anima quando o carrossel está visível na tela
+  useEffect(() => {
+    const el = containerRef.current
+    if (!el) return
+    const io = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { rootMargin: '100px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
+
   // Autoplay com requestAnimationFrame (fluxo contínuo esquerda -> direita)
   useEffect(() => {
+    if (isPaused || !onScreen) return
     let raf: number
     const speedPxPerSec = 60 // ajuste de velocidade
     let prevTs = 0
 
     const step = (ts: number) => {
       if (!prevTs) prevTs = ts
-      const dt = (ts - prevTs) / 1000
+      const dt = Math.min(0.05, (ts - prevTs) / 1000) // evita saltos depois de a aba voltar
       prevTs = ts
 
-      if (!isPaused) {
-        const track = trackRef.current
-        const container = containerRef.current
-        if (track && container) {
-          const containerWidth = container.getBoundingClientRect().width
-          const trackWidth = track.scrollWidth
-          // move para a esquerda
-          let next = x.get() - speedPxPerSec * dt
-          // quando metade do track passou, reseta para 0
-          const resetThreshold = -(trackWidth / 3) // porque triplicamos os itens
-          if (next <= resetThreshold) next = 0
-          // evita "puxões" quando for muito maior que container
-          if (trackWidth > containerWidth) {
-            x.set(next)
-          }
-        }
+      const { track: trackWidth, container: containerWidth } = sizes.current
+      if (trackWidth > containerWidth) {
+        // move para a esquerda; quando 1/3 do track passou (itens triplicados), volta para 0
+        let next = x.get() - speedPxPerSec * dt
+        if (next <= -(trackWidth / 3)) next = 0
+        x.set(next)
       }
 
       raf = requestAnimationFrame(step)
@@ -78,7 +96,7 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
 
     raf = requestAnimationFrame(step)
     return () => cancelAnimationFrame(raf)
-  }, [isPaused, activeTab])
+  }, [isPaused, onScreen, activeTab, x])
 
   return (
     <section id="projetos" className="section-padding">

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import type { Language } from '@/lib/i18n'
 import NubeCharacter, { MiniCloud, type NubeAction } from './NubeCharacter'
+import { useLiteMode } from '@/lib/use-lite'
 
 interface NubeIntroProps {
   currentLanguage: Language
@@ -54,6 +55,7 @@ const FLOATERS = [
 
 export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps) {
   const copy = COPY[currentLanguage]
+  const lite = useLiteMode() // celular: sem nuvens desfocadas gigantes no fundo
   const [visible, setVisible] = useState(true)
   const [skipped, setSkipped] = useState(false)
   const [nubeState, setNubeState] = useState<'hidden' | 'in' | 'out'>('hidden')
@@ -145,7 +147,7 @@ export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps)
         >
           {/* Fundo: brilho + nuvens desfocadas atravessando */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_45%,rgba(255,255,255,0.06),transparent_60%)]" />
-          {BG_CLOUDS.map((c, i) => (
+          {!lite && BG_CLOUDS.map((c, i) => (
             <motion.div
               key={i}
               className="absolute rounded-full bg-white blur-[60px]"
@@ -156,7 +158,7 @@ export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps)
             />
           ))}
 
-          {FLOATERS.map((f, i) => (
+          {!lite && FLOATERS.map((f, i) => (
             <motion.div
               key={i}
               className="absolute hidden sm:block"

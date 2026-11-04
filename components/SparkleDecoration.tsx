@@ -73,13 +73,13 @@ export const SparkleField = () => {
         duration={4.5} 
       />
       <SparkleDecoration 
-        className="top-[60%] left-[15%]" 
+        className="hidden sm:block top-[60%] left-[15%]" 
         size={20} 
         delay={3} 
         duration={5.5} 
       />
       <SparkleDecoration 
-        className="top-[10%] left-[45%]" 
+        className="hidden sm:block top-[10%] left-[45%]" 
         size={18} 
         delay={1} 
         duration={7} 
