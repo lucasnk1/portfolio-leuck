@@ -30,6 +30,7 @@ const SkillCard = ({ skill, index, currentLanguage, onSkillClick, isActive }: Sk
           : ''
       }`}
       onClick={() => onSkillClick(skill.name)}
+      data-skill={skill.name}
     >
       <div className="flex flex-col items-center text-center">
         <div className="w-12 h-12 rounded-lg bg-white/[0.04] flex items-center justify-center mb-3 group-hover:bg-white/[0.08] transition-all duration-300">

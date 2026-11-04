@@ -16,11 +16,34 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
   const [activeSkill, setActiveSkill] = useState<string | null>(null)
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set())
   const [progress, setProgress] = useState(0)
+  // quando o Nube aceita explicar a habilidade, o painel lateral não aparece
+  const [nubeHandles, setNubeHandles] = useState(false)
 
   const handleSkillClick = (skillName: string) => {
-    setActiveSkill(activeSkill === skillName ? null : skillName)
     setProgress(0)
+    if (activeSkill === skillName) {
+      setActiveSkill(null)
+      window.dispatchEvent(new CustomEvent('nube:skill-close'))
+      return
+    }
+    const skill = skillsData.flatMap((c) => c.skills).find((s) => s.name === skillName)
+    let accepted = false
+    const onAccepted = () => {
+      accepted = true
+    }
+    window.addEventListener('nube:skill-accepted', onAccepted)
+    window.dispatchEvent(new CustomEvent('nube:skill', { detail: { name: skillName, description: skill?.description } }))
+    window.removeEventListener('nube:skill-accepted', onAccepted)
+    setNubeHandles(accepted)
+    setActiveSkill(skillName)
   }
+
+  // o Nube terminou de explicar e voltou pro canto
+  useEffect(() => {
+    const onDone = () => setActiveSkill(null)
+    window.addEventListener('nube:skill-done', onDone)
+    return () => window.removeEventListener('nube:skill-done', onDone)
+  }, [])
 
   const toggleCategory = (categoryTitle: string) => {
     const newExpanded = new Set(expandedCategories)
@@ -46,7 +69,7 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
 
   // Auto-close timer with progress bar
   useEffect(() => {
-    if (activeSkill) {
+    if (activeSkill && !nubeHandles) {
       setProgress(0)
       const interval = setInterval(() => {
         setProgress(prev => {
@@ -62,7 +85,7 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
     } else {
       setProgress(0)
     }
-  }, [activeSkill])
+  }, [activeSkill, nubeHandles])
 
   return (
     <section id="skills" className="section-padding relative">
@@ -155,7 +178,7 @@ const SkillsSection = ({ currentLanguage }: SkillsSectionProps) => {
 
         {/* Skill Description Panel */}
         <AnimatePresence>
-          {activeSkillData && (
+          {activeSkillData && !nubeHandles && (
             <motion.div
               initial={{ opacity: 0, x: 300 }}
               animate={{ opacity: 1, x: 0 }}

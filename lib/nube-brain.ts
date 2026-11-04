@@ -288,6 +288,11 @@ const TOPICS: Topic[] = [
     ],
   },
   {
+    // gauchês
+    keywords: ['bah', 'bahh', 'bahhh', 'tche', 'tri', 'barbaridade'],
+    replies: [{ pt: { text: 'Bah, tchê!' }, en: { text: 'Bah, tchê!' } }],
+  },
+  {
     keywords: ['obrigado', 'obrigada', 'valeu', 'thanks', 'thank you', 'vlw', 'brigado', 'top', 'legal'],
     replies: [
       {

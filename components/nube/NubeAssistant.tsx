@@ -36,14 +36,21 @@ interface Message {
   lang?: Language
 }
 
-type Mode = 'home' | 'roaming' | 'angry'
+type Mode = 'home' | 'roaming' | 'angry' | 'visiting'
 type Bubble =
   | { kind: 'help' }
   | { kind: 'lang'; lang: Language }
   | { kind: 'angry' }
   | { kind: 'furious' }
   | { kind: 'calm' }
+  | { kind: 'skill'; name: string; text: Record<Language, string> }
   | null
+
+/** Pedido da seção de Habilidades: "Nube, explica essa aqui" */
+export interface SkillVisit {
+  name: string
+  description: Record<Language, string>
+}
 
 type DistOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 type FXInput = DistOmit<FX, 'id'>
@@ -582,6 +589,144 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     setMode('home')
   }, [addFX, flight, play, showBubble])
 
+  /* ---------------- habilidades: vai com o vento até a habilidade clicada ---------------- */
+
+  const [windTravel, setWindTravel] = useState(false)
+  const [nubeHidden, setNubeHidden] = useState(false) // some enquanto o vento o leva
+  const [windKey, setWindKey] = useState(0) // reinicia a rajada a cada viagem
+  const [bubbleOnRight, setBubbleOnRight] = useState(false) // balão abre pra direita quando está perto da borda esquerda
+  const offset = useRef({ x: 0, y: 0 }) // deslocamento atual em relação ao canto
+  const visitEl = useRef<Element | null>(null)
+  const visitTimer = useRef<ReturnType<typeof setTimeout>>()
+  const pendingVisit = useRef<SkillVisit | null>(null)
+
+  /** posição (centro do Nube) ao lado do card da habilidade, dentro da tela */
+  const spotNear = (el: Element) => {
+    const r = el.getBoundingClientRect()
+    const w = window.innerWidth
+    const h = window.innerHeight
+    // fica em cima do card; se não houver espaço para o balão, fica embaixo
+    const above = r.top - 46
+    const y = above < 230 ? r.bottom + 50 : above
+    return {
+      x: Math.min(w - 70, Math.max(70, r.right - 8)),
+      y: Math.min(h - 70, Math.max(100, y)),
+    }
+  }
+
+  const cardOnScreen = (el: Element) => {
+    const r = el.getBoundingClientRect()
+    return r.bottom > 0 && r.top < window.innerHeight
+  }
+
+  /** O Nube some numa rajada de vento, o vento atravessa até o destino e ele reaparece lá */
+  const travelByWind = useCallback(
+    async (to: { x: number; y: number }) => {
+      setWindKey((n) => n + 1)
+      setWindTravel(true)
+      await wait(220) // a rajada começa
+      setNubeHidden(true)
+      await wait(180) // o Nube some dentro dele
+      await flight.start({ x: to.x, y: to.y }, { duration: 1.1, ease: [0.5, 0, 0.3, 1] })
+      offset.current = to
+      setNubeHidden(false) // reaparece
+      await wait(260)
+      setWindTravel(false)
+    },
+    [flight],
+  )
+
+  const endVisit = useCallback(async () => {
+    clearTimeout(visitTimer.current)
+    visitEl.current = null
+    setBubble(null)
+    if (!reduced.current) await travelByWind({ x: 0, y: 0 })
+    else flight.set({ x: 0, y: 0 })
+    offset.current = { x: 0, y: 0 }
+    setLook({ x: 0, y: 0 })
+    setMode('home')
+    window.dispatchEvent(new CustomEvent('nube:skill-done'))
+  }, [flight, travelByWind])
+
+  const visitSkill = useCallback(
+    async (visit: SkillVisit) => {
+      const el = document.querySelector(`[data-skill="${CSS.escape(visit.name)}"]`)
+      if (!el) return
+      clearTimeout(visitTimer.current)
+      setOpen(false)
+      setBubble(null)
+      setMode('visiting')
+      visitEl.current = el
+
+      if (!reduced.current) {
+        // centro do "canto" = centro atual menos o deslocamento atual
+        const cur = nubeCenter()
+        const home = { x: cur.x - offset.current.x, y: cur.y - offset.current.y }
+        const spot = spotNear(el)
+        await travelByWind({ x: spot.x - home.x, y: spot.y - home.y })
+      }
+
+      // chegou: olha para o card e explica
+      setBubbleOnRight(nubeCenter().x < 300)
+      setLook({ x: -0.5, y: 0.6 })
+      play('wink', true)
+      clearTimeout(bubbleTimer.current)
+      setBubble({ kind: 'skill', name: visit.name, text: visit.description })
+      visitTimer.current = setTimeout(() => endVisit(), 7000)
+    },
+    [endVisit, travelByWind, play],
+  )
+
+  // a seção de Habilidades chama o Nube
+  useEffect(() => {
+    if (!show) return
+    const onSkill = (e: Event) => {
+      const visit = (e as CustomEvent<SkillVisit>).detail
+      if (modeRef.current === 'angry') return // bravo, não atende (o painel normal aparece)
+      window.dispatchEvent(new CustomEvent('nube:skill-accepted'))
+      if (modeRef.current === 'roaming') {
+        pendingVisit.current = visit
+        abortRoam.current = true
+        return
+      }
+      visitSkill(visit)
+    }
+    const onClose = () => {
+      if (modeRef.current === 'visiting') endVisit()
+    }
+    window.addEventListener('nube:skill', onSkill)
+    window.addEventListener('nube:skill-close', onClose)
+    return () => {
+      window.removeEventListener('nube:skill', onSkill)
+      window.removeEventListener('nube:skill-close', onClose)
+    }
+  }, [show, visitSkill, endVisit])
+
+  // se a página rolar, ele acompanha o card
+  useEffect(() => {
+    if (!show) return
+    const onScroll = () => {
+      if (modeRef.current !== 'visiting' || !visitEl.current || windTravelRef.current) return
+      // o card saiu da tela: volta pro canto
+      if (!cardOnScreen(visitEl.current)) {
+        endVisit()
+        return
+      }
+      const cur = nubeCenter()
+      const home = { x: cur.x - offset.current.x, y: cur.y - offset.current.y }
+      const spot = spotNear(visitEl.current)
+      offset.current = { x: spot.x - home.x, y: spot.y - home.y }
+      flight.set({ x: offset.current.x, y: offset.current.y })
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [show, flight, endVisit])
+
+  const windTravelRef = useRef(false)
+  useEffect(() => {
+    windTravelRef.current = windTravel
+  }, [windTravel])
+
   /* ---------------- passear / voar pelo site ---------------- */
 
   const startRoam = useCallback(async () => {
@@ -655,11 +800,17 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
 
     setLook({ x: 0, y: 0 })
     setMode('home')
+    if (pendingVisit.current) {
+      const v = pendingVisit.current
+      pendingVisit.current = null
+      visitSkill(v)
+      return
+    }
     if (openAfterRoam.current) {
       openAfterRoam.current = false
       setOpen(true)
     }
-  }, [addFX, flight])
+  }, [addFX, flight, visitSkill])
 
   // agenda os passeios: primeiro ~15s depois de aparecer, depois a cada 30–55s
   const startRoamRef = useRef(startRoam)
@@ -791,6 +942,11 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       return
     }
     if (modeRef.current === 'angry') return
+    if (modeRef.current === 'visiting') {
+      // estava explicando uma habilidade: volta e abre o chat
+      endVisit().then(() => setOpen(true))
+      return
+    }
     setOpen((o) => !o)
     setBubble(null)
   }
@@ -972,29 +1128,49 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
             transition={{ type: 'spring', stiffness: 160, damping: 13, delay: 0.25 }}
           >
             {/* esta camada é a que voa/passeia pelo site */}
-            <motion.div animate={flight} style={{ originX: 0.5, originY: 1 }}>
+            <motion.div animate={flight} className="relative" style={{ originX: 0.5, originY: 1 }}>
               <AnimatePresence mode="wait">
-                {bubble && !(open && bubble.kind === 'help') && (
+                {bubble && bubble.kind === 'skill' ? (
                   <motion.div
-                    key={bubble.kind}
-                    className="absolute z-10 bottom-[calc(100%-4px)] right-4 flex items-center gap-2 whitespace-nowrap text-xs font-semibold px-3 py-2 rounded-xl rounded-br-sm bg-white text-background shadow-lg"
+                    key={`skill-${bubble.name}`}
+                    className={`absolute z-10 bottom-[calc(100%-4px)] w-64 max-w-[calc(100vw-3rem)] text-xs leading-relaxed px-3.5 py-3 rounded-xl bg-white text-background shadow-lg ${
+                      bubbleOnRight ? 'left-4 rounded-bl-sm' : 'right-4 rounded-br-sm'
+                    }`}
                     initial={{ opacity: 0, y: 6, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.8 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 20 }}
-                    style={{ originX: 1, originY: 1 }}
+                    style={{ originX: bubbleOnRight ? 0 : 1, originY: 1 }}
                   >
-                    {bubble.kind === 'lang' ? (
-                      <>
-                        <Flag lang={bubble.lang} />
-                        {UI[bubble.lang].lang}
-                      </>
-                    ) : (
-                      ui[bubble.kind]
-                    )}
+                    <p className="font-heading font-bold text-sm mb-1">{bubble.name}</p>
+                    <p>{bubble.text[currentLanguage]}</p>
                   </motion.div>
+                ) : (
+                  bubble &&
+                  !(open && bubble.kind === 'help') && (
+                    <motion.div
+                      key={bubble.kind}
+                      className="absolute z-10 bottom-[calc(100%-4px)] right-4 flex items-center gap-2 whitespace-nowrap text-xs font-semibold px-3 py-2 rounded-xl rounded-br-sm bg-white text-background shadow-lg"
+                      initial={{ opacity: 0, y: 6, scale: 0.8 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 6, scale: 0.8 }}
+                      transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+                      style={{ originX: 1, originY: 1 }}
+                    >
+                      {bubble.kind === 'lang' ? (
+                        <>
+                          <Flag lang={bubble.lang} />
+                          {UI[bubble.lang].lang}
+                        </>
+                      ) : (
+                        ui[bubble.kind]
+                      )}
+                    </motion.div>
+                  )
                 )}
               </AnimatePresence>
+              {/* rajada de vento levando o Nube */}
+              {windTravel && <WindGust k={windKey} />}
 
               <button
                 ref={nubeRef}
@@ -1022,16 +1198,23 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
                 aria-expanded={open}
                 className="relative block w-24 h-24 sm:w-28 sm:h-28 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/30 cursor-pointer"
               >
-                <StormCrown active={mode === 'angry'} />
-                <Particles action={lastAction.current} k={actionKey} />
-                <NubeCharacter
-                  size={112}
-                  action={action}
-                  actionKey={actionKey}
-                  look={look}
-                  mood={mood}
-                  className="w-full h-full"
-                />
+                <motion.div
+                  className="relative w-full h-full"
+                  initial={false}
+                  animate={nubeHidden ? { opacity: 0, scale: 0.2, rotate: 25 } : { opacity: 1, scale: 1, rotate: 0 }}
+                  transition={nubeHidden ? { duration: 0.18, ease: 'easeIn' } : { type: 'spring', stiffness: 320, damping: 15 }}
+                >
+                  <StormCrown active={mode === 'angry'} />
+                  <Particles action={lastAction.current} k={actionKey} />
+                  <NubeCharacter
+                    size={112}
+                    action={action}
+                    actionKey={actionKey}
+                    look={look}
+                    mood={mood}
+                    className="w-full h-full"
+                  />
+                </motion.div>
               </button>
             </motion.div>
           </motion.div>
