@@ -594,7 +594,22 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
   const [windTravel, setWindTravel] = useState(false)
   const [nubeHidden, setNubeHidden] = useState(false) // some enquanto o vento o leva
   const [windKey, setWindKey] = useState(0) // reinicia a rajada a cada viagem
-  const [bubbleOnRight, setBubbleOnRight] = useState(false) // balão abre pra direita quando está perto da borda esquerda
+  // posição/largura do balão da habilidade, calculadas para caber sempre na tela (inclusive no celular)
+  const [skillBubble, setSkillBubble] = useState({ left: 0, width: 256, originX: 1 })
+
+  /** Calcula onde o balão fica: alinhado ao Nube, mas nunca saindo da tela */
+  const placeSkillBubble = () => {
+    const br = nubeRef.current?.getBoundingClientRect()
+    if (!br) return
+    const vw = window.innerWidth
+    const margin = 12
+    const width = Math.min(256, vw - margin * 2)
+    const desired = br.right - 16 - width // preferência: balão à esquerda do Nube
+    const left = Math.min(vw - margin - width, Math.max(margin, desired))
+    // o "rabinho" fica do lado mais perto do Nube
+    const center = br.left + br.width / 2
+    setSkillBubble({ left: left - br.left, width, originX: center > left + width / 2 ? 1 : 0 })
+  }
   const offset = useRef({ x: 0, y: 0 }) // deslocamento atual em relação ao canto
   const visitEl = useRef<Element | null>(null)
   const visitTimer = useRef<ReturnType<typeof setTimeout>>()
@@ -610,7 +625,8 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     const y = above < 230 ? r.bottom + 50 : above
     return {
       x: Math.min(w - 70, Math.max(70, r.right - 8)),
-      y: Math.min(h - 70, Math.max(100, y)),
+      // nunca tão alto a ponto de o balão (acima dele) sair do topo da tela
+      y: Math.min(h - 70, Math.max(210, y)),
     }
   }
 
@@ -627,7 +643,17 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       await wait(220) // a rajada começa
       setNubeHidden(true)
       await wait(180) // o Nube some dentro dele
-      await flight.start({ x: to.x, y: to.y }, { duration: 1.1, ease: [0.5, 0, 0.3, 1] })
+      // limite de segurança: se o navegador pausar a animação (ex.: troca de app no celular),
+      // ele não fica preso no meio do caminho
+      let done = false
+      await Promise.race([
+        flight.start({ x: to.x, y: to.y }, { duration: 1.1, ease: [0.5, 0, 0.3, 1] }).then(() => (done = true)),
+        wait(1700),
+      ])
+      if (!done) {
+        flight.stop()
+        flight.set({ x: to.x, y: to.y })
+      }
       offset.current = to
       setNubeHidden(false) // reaparece
       await wait(260)
@@ -667,7 +693,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       }
 
       // chegou: olha para o card e explica
-      setBubbleOnRight(nubeCenter().x < 300)
+      placeSkillBubble()
       setLook({ x: -0.5, y: 0.6 })
       play('wink', true)
       clearTimeout(bubbleTimer.current)
@@ -819,10 +845,12 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     if (!show) return
     // atalho só em desenvolvimento: window.__nubeRoam() no console
     if (process.env.NODE_ENV !== 'production') {
-      ;(window as unknown as { __nubeRoam?: () => void }).__nubeRoam = () => {
+      const dbg = window as unknown as { __nubeRoam?: () => void; __nubeMode?: () => Mode }
+      dbg.__nubeRoam = () => {
         hovering.current = false
         startRoamRef.current()
       }
+      dbg.__nubeMode = () => modeRef.current
     }
     let timer: ReturnType<typeof setTimeout>
     let alive = true
@@ -1129,24 +1157,28 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
           >
             {/* esta camada é a que voa/passeia pelo site */}
             <motion.div animate={flight} className="relative" style={{ originX: 0.5, originY: 1 }}>
-              <AnimatePresence mode="wait">
-                {bubble && bubble.kind === 'skill' ? (
+              {/* balão da habilidade: independente dos outros balões (não espera nenhum sair) */}
+              <AnimatePresence>
+                {bubble && bubble.kind === 'skill' && (
                   <motion.div
                     key={`skill-${bubble.name}`}
-                    className={`absolute z-10 bottom-[calc(100%-4px)] w-64 max-w-[calc(100vw-3rem)] text-xs leading-relaxed px-3.5 py-3 rounded-xl bg-white text-background shadow-lg ${
-                      bubbleOnRight ? 'left-4 rounded-bl-sm' : 'right-4 rounded-br-sm'
+                    className={`absolute z-10 bottom-[calc(100%-4px)] text-xs leading-relaxed px-3.5 py-3 rounded-xl bg-white text-background shadow-lg ${
+                      skillBubble.originX === 1 ? 'rounded-br-sm' : 'rounded-bl-sm'
                     }`}
                     initial={{ opacity: 0, y: 6, scale: 0.8 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 6, scale: 0.8 }}
                     transition={{ type: 'spring', stiffness: 320, damping: 20 }}
-                    style={{ originX: bubbleOnRight ? 0 : 1, originY: 1 }}
+                    style={{ left: skillBubble.left, width: skillBubble.width, originX: skillBubble.originX, originY: 1 }}
                   >
                     <p className="font-heading font-bold text-sm mb-1">{bubble.name}</p>
                     <p>{bubble.text[currentLanguage]}</p>
                   </motion.div>
-                ) : (
-                  bubble &&
+                )}
+              </AnimatePresence>
+              <AnimatePresence mode="wait">
+                {bubble &&
+                  bubble.kind !== 'skill' &&
                   !(open && bubble.kind === 'help') && (
                     <motion.div
                       key={bubble.kind}
@@ -1166,8 +1198,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
                         ui[bubble.kind]
                       )}
                     </motion.div>
-                  )
-                )}
+                  )}
               </AnimatePresence>
               {/* rajada de vento levando o Nube */}
               {windTravel && <WindGust k={windKey} />}
