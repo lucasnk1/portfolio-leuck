@@ -28,7 +28,7 @@ const PT = {
     subtitle: 'O desespero por sucesso na geração da pressa',
     lead:
       'Um olhar honesto sobre a geração que corre sem saber onde quer chegar, e o preço que paga por isso. Um livro sobre pressa, comparação, trabalho, dinheiro como identidade e, no fim, sobre aprender a andar no próprio ritmo.',
-    meta: 'LUCAS LEUCK · NÃO FICÇÃO · PORTUGUÊS',
+    meta: 'LUCAS LEUCK · PORTUGUÊS',
     read: 'Ler o livro',
     contents: 'Ver o sumário',
     back: '← Voltar aos projetos',
@@ -131,7 +131,7 @@ const EN: Copy = {
     subtitle: '“Youth and the Race for Money”: the desperation for success in the generation in a hurry',
     lead:
       'An honest look at a generation running without knowing where it wants to go, and the price it pays for it. A book about hurry, comparison, work, money as identity and, in the end, learning to walk at your own pace.',
-    meta: 'LUCAS LEUCK · NON-FICTION · WRITTEN IN PORTUGUESE',
+    meta: 'LUCAS LEUCK · WRITTEN IN PORTUGUESE',
     read: 'Read the book',
     contents: 'See the contents',
     back: '← Back to projects',

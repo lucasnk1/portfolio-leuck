@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowDown, ArrowUpRight, BookOpen, Plus } from 'lucide-react'
 import { useStoredLanguage } from '@/lib/use-language'
 import { BOOK_COPY, BOOK_COVER, BOOK_URL } from '@/lib/livro-content'
@@ -15,10 +15,6 @@ export default function BookProject() {
   const [part, setPart] = useState(0)
   const [openChapter, setOpenChapter] = useState<number | null>(0)
   const [quote, setQuote] = useState(0)
-
-  // leve parallax na capa
-  const { scrollY } = useScroll()
-  const coverY = useTransform(scrollY, [0, 600], [0, 60])
 
   useEffect(() => {
     document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en'
@@ -75,7 +71,7 @@ export default function BookProject() {
               </div>
             </Reveal>
 
-            <Reveal delay={0.15} className="mt-12">
+            <div className="mt-12">
               <a
                 href={BOOK_URL}
                 target="_blank"
@@ -83,17 +79,12 @@ export default function BookProject() {
                 className="group block relative overflow-hidden border border-white/15 hover:border-white/30 transition-colors"
                 aria-label={c.hero.read}
               >
-                <motion.img
-                  src={BOOK_COVER}
-                  alt={c.hero.title}
-                  style={{ y: coverY }}
-                  className="w-full aspect-video object-cover scale-[1.08] group-hover:scale-[1.11] transition-transform duration-700"
-                />
+                <img src={BOOK_COVER} alt={c.hero.title} className="block w-full h-auto" />
                 <span className="absolute bottom-4 right-4 inline-flex items-center gap-2 bg-black/70 backdrop-blur-sm text-white text-xs font-mono tracking-widest px-3 py-2">
                   {c.hero.read.toUpperCase()} <ArrowUpRight size={13} />
                 </span>
               </a>
-            </Reveal>
+            </div>
           </div>
         </section>
 

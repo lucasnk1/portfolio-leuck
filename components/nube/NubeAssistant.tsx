@@ -91,13 +91,11 @@ const PACE = {
   firstRoam: 30000, // primeiro passeio depois que ele aparece
   roamMin: 60000, // intervalo entre passeios
   roamMax: 100000,
-  windGap: 25000, // entre rajadas de vento (ao rolar rápido)
+  windGap: 40000, // entre rajadas de vento (ao rolar muito rápido)
+  windSpeed: 4.5, // px/ms: só rolagens bem rápidas disparam o vento
+  windInputWindow: 250, // a rolagem precisa vir de roda/toque/teclado do usuário (não de links)
   boltGap: 1500, // entre raios de clique duplo
   angryGap: 8000, // depois de ficar bravo
-  firstStorm: 45000, // primeiro raio "do nada" depois que ele aparece
-  stormMin: 75000, // intervalo entre raios espontâneos
-  stormMax: 130000,
-  flyBoltChance: 0.5, // chance de jogar um raio durante o voo
   hoverSpam: 5, // passadas de mouse seguidas que irritam o Nube...
   hoverSpamWindow: 4000, // ...dentro desta janela de tempo
 }
@@ -120,10 +118,19 @@ function pickVaried<T>(options: T[], memory: { last: T | null; streak: number })
  *  linhas com "• " viram tópicos, **texto** vira negrito, [rótulo](url) vira link
  */
 function Inline({ text }: { text: string }) {
-  const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g)
+  const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|🇵🇱)/g)
   return (
     <>
       {parts.map((p, i) => {
+        // o Windows não desenha emoji de bandeira (vira "PL"), então a bandeira é SVG
+        if (p === '🇵🇱') {
+          return (
+            <svg key={i} viewBox="0 0 16 10" width="20" height="13" className="mx-0.5 inline-block rounded-[2px] align-[-2px]" aria-label="Polônia">
+              <rect width="16" height="5" fill="#ffffff" />
+              <rect y="5" width="16" height="5" fill="#dc143c" />
+            </svg>
+          )
+        }
         if (p.startsWith('**') && p.endsWith('**')) {
           return (
             <strong key={i} className="font-semibold text-white">
@@ -785,13 +792,6 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
         )
         prevX = dx
         if (abortRoam.current) break
-        // no meio do voo ele joga um raio lá embaixo
-        if (p === stops[1] && Math.random() < PACE.flyBoltChance) {
-          const c = nubeCenter()
-          const y = Math.min(h - 40, c.y + rand(160, 260))
-          addFX({ type: 'bolt', x: c.x + rand(-40, 40), y, fromY: c.y + 30 })
-          addFX({ type: 'flash' })
-        }
         // dá uma olhadinha no site
         setLook({ x: -dir * 0.6, y: 0.8 })
         await flight.start({ rotate: 0, y: dy - 10 }, { duration: 0.45 })
@@ -867,30 +867,6 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     }
   }, [show])
 
-  /* ---------------- raios espontâneos ---------------- */
-
-  // de tempos em tempos o Nube joga um raio em algum lugar do site
-  useEffect(() => {
-    if (!show) return
-    let timer: ReturnType<typeof setTimeout>
-    const strike = () => {
-      if (modeRef.current === 'home' && !openRef.current && !document.hidden && !reduced.current) {
-        const w = window.innerWidth
-        const h = window.innerHeight
-        const x = rand(w * 0.12, w * 0.8)
-        const y = rand(h * 0.3, h * 0.8)
-        const c = nubeCenter()
-        setLook({ x: (x - c.x) / 300, y: (y - c.y) / 300 })
-        play('jump', true)
-        addFX({ type: 'bolt', x, y, fromY: Math.max(30, y - rand(200, 300)) })
-        addFX({ type: 'flash' })
-      }
-      timer = setTimeout(strike, rand(PACE.stormMin, PACE.stormMax))
-    }
-    timer = setTimeout(strike, PACE.firstStorm)
-    return () => clearTimeout(timer)
-  }, [show, addFX, play])
-
   /* ---------------- interações com o site ---------------- */
 
   useEffect(() => {
@@ -899,6 +875,15 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     let lastBolt = 0
     let lastWind = 0
     let anchor = { t: performance.now(), y: window.scrollY }
+    let lastScrollInput = -Infinity
+
+    // marca quando foi o próprio usuário que rolou (e não um link do menu ou botão)
+    const markInput = () => {
+      lastScrollInput = performance.now()
+    }
+    const onKeyInput = (e: KeyboardEvent) => {
+      if (['PageDown', 'PageUp', 'Home', 'End', ' ', 'ArrowDown', 'ArrowUp'].includes(e.key)) markInput()
+    }
 
     const ignore = (el: EventTarget | null) =>
       el instanceof Element && !!el.closest('[role=dialog], input, textarea, [data-nube]')
@@ -935,7 +920,8 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       if (dt < 90) return
       const dy = window.scrollY - anchor.y
       anchor = { t: now, y: window.scrollY }
-      if (Math.abs(dy) / dt < 3 || now - lastWind < PACE.windGap) return
+      if (Math.abs(dy) / dt < PACE.windSpeed || now - lastWind < PACE.windGap) return
+      if (now - lastScrollInput > PACE.windInputWindow) return
       if (modeRef.current !== 'home' || reduced.current) return
       lastWind = now
       // o vento sempre sopra da esquerda para a direita
@@ -946,10 +932,16 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     document.addEventListener('click', onClick)
     document.addEventListener('dblclick', onDouble)
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('wheel', markInput, { passive: true })
+    window.addEventListener('touchmove', markInput, { passive: true })
+    window.addEventListener('keydown', onKeyInput)
     return () => {
       document.removeEventListener('click', onClick)
       document.removeEventListener('dblclick', onDouble)
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('wheel', markInput)
+      window.removeEventListener('touchmove', markInput)
+      window.removeEventListener('keydown', onKeyInput)
     }
   }, [show, addFX, play, triggerAngry])
 

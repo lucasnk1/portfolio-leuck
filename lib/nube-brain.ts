@@ -31,6 +31,8 @@ type Bilingual = { pt: NubeReply; en: NubeReply }
 interface Topic {
   id?: 'joke'
   keywords: string[]
+  /** Casa por palavra inteira (texto já normalizado); ganha de qualquer palavra-chave */
+  pattern?: RegExp
   replies: Bilingual[]
 }
 
@@ -277,13 +279,52 @@ const TOPICS: Topic[] = [
     replies: [
       {
         pt: {
-          text: 'Bora falar com o Lucas! 💬\n\n• 💼 **LinkedIn:** [lucasleuck](https://www.linkedin.com/in/lucasleuck)\n• 🐙 **GitHub:** [lucasnk1](https://github.com/lucasnk1)\n• ✉️ **E-mail:** [lucas.oliveria014@edu.pucrs.br](mailto:lucas.oliveria014@edu.pucrs.br)\n\nPode chamar sem cerimônia: ele adora conversar sobre dados e IA. 😉',
+          text: 'Bora falar com o Lucas! 💬\n\n• 💼 **LinkedIn:** [lucasleuck](https://www.linkedin.com/in/lucasleuck)\n• 🐙 **GitHub:** [lucasnk1](https://github.com/lucasnk1)\n• ✉️ **E-mail:** [lucas.leuck050206@gmail.com](mailto:lucas.leuck050206@gmail.com)\n\nPode chamar sem cerimônia: ele adora conversar sobre dados e IA. 😉',
           action: { label: 'Ir para Contato', scrollTo: 'contato' },
         },
         en: {
-          text: "Let's talk to Lucas! 💬\n\n• 💼 **LinkedIn:** [lucasleuck](https://www.linkedin.com/in/lucasleuck)\n• 🐙 **GitHub:** [lucasnk1](https://github.com/lucasnk1)\n• ✉️ **Email:** [lucas.oliveria014@edu.pucrs.br](mailto:lucas.oliveria014@edu.pucrs.br)\n\nFeel free to reach out: he loves chatting about data and AI. 😉",
+          text: "Let's talk to Lucas! 💬\n\n• 💼 **LinkedIn:** [lucasleuck](https://www.linkedin.com/in/lucasleuck)\n• 🐙 **GitHub:** [lucasnk1](https://github.com/lucasnk1)\n• ✉️ **Email:** [lucas.leuck050206@gmail.com](mailto:lucas.leuck050206@gmail.com)\n\nFeel free to reach out: he loves chatting about data and AI. 😉",
           action: { label: 'Go to Contact', scrollTo: 'contato' },
         },
+      },
+    ],
+  },
+  {
+    // trajetória profissional (mesmos dados da linha do tempo em components/AboutSection.tsx)
+    keywords: [],
+    pattern: /\b(trabalhou|trabalha|trabalhando|trabalhei|experiencia|experiencias|emprego|empregos|empresa|empresas|estagio|estagiario|estagia|trajetoria|carreira|lpdb|fiverr|skate total urbe|worked|works|working|experience|employer|internship|intern|career)\b/,
+    replies: [
+      {
+        pt: {
+          text: 'Bora de trajetória! 🧭\n\n• ⚖️ **LPDB Advogados** (mai/2026 – hoje): estagiário de **Automação, Dados & IA**, cuidando de automação de processos, pipelines de dados, integração de sistemas e soluções com IA. Lá ele também é estagiário de **Legal Ops**, com pesquisas cadastrais e validação de dados e documentos\n• 🛹 **Skate Total Urbe** (mar/2025): assistente de operações no **STU Pro Tour 2025**, falando inglês com atletas e imprensa e cuidando do credenciamento no Excel\n• 🎨 **Fiverr** (2019 – 2021): **Full-Stack & Designer**, criando designs para lojas virtuais e materiais digitais para clientes do Brasil e de fora\n• 🎓 E desde 2024 ele cursa **Ciência de Dados e IA** na **PUCRS** (formatura em 2028)\n\nComeçou no design, passou pelos eventos e hoje junta dados, automação e IA. Nada mal pra quem tem uma nuvem como assistente! ☁️',
+          action: { label: 'Ver trajetória', scrollTo: 'sobre' },
+        },
+        en: {
+          text: "Here's the journey! 🧭\n\n• ⚖️ **LPDB Advogados** (May 2026 – now): **Automation, Data & AI** intern, working on process automation, data pipelines, system integration and AI solutions. He's also a **Legal Ops** intern there, doing background research and data and document validation\n• 🛹 **Skate Total Urbe** (Mar 2025): operations assistant at the **STU Pro Tour 2025**, speaking English with athletes and press and handling accreditation in Excel\n• 🎨 **Fiverr** (2019 – 2021): **Full-Stack & Designer**, creating designs for online stores and digital materials for clients in Brazil and abroad\n• 🎓 And since 2024 he's been studying **Data Science and AI** at **PUCRS** (graduating in 2028)\n\nStarted in design, went through events and now brings together data, automation and AI. Not bad for someone with a cloud as an assistant! ☁️",
+          action: { label: 'See journey', scrollTo: 'sobre' },
+        },
+      },
+    ],
+  },
+  {
+    // futebol: Grêmio
+    keywords: [],
+    pattern: /\b(gremio|gremista|gremistas|tricolor)\b/,
+    replies: [
+      {
+        pt: { text: 'Gremista?! 🙄\n\nEu não gosto de **time pequeno**.' },
+        en: { text: "Gremio fan?! 🙄\n\nI don't like **small teams**." },
+      },
+    ],
+  },
+  {
+    // futebol: Inter
+    keywords: [],
+    pattern: /\b(inter|internacional|colorado|colorada|colorados|beira rio)\b/,
+    replies: [
+      {
+        pt: { text: 'É O INTER NÉ MEUU, VAMOOOO MEU VELHOO 🇵🇱🇵🇱' },
+        en: { text: 'É O INTER NÉ MEUU, VAMOOOO MEU VELHOO 🇵🇱🇵🇱' },
       },
     ],
   },
@@ -362,7 +403,7 @@ export function getNubeReply(message: string): ReplyRef {
   let bestScore = 0
 
   for (let i = 0; i < TOPICS.length; i++) {
-    let score = 0
+    let score = TOPICS[i].pattern?.test(text) ? 1000 : 0
     for (const kw of TOPICS[i].keywords) {
       const k = normalize(kw)
       // palavras curtas precisam bater como palavra inteira

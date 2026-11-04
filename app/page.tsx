@@ -1,6 +1,5 @@
 'use client'
 
-import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Linkedin, Github, Mail } from 'lucide-react'
 import { translations } from '@/lib/i18n'
@@ -14,20 +13,20 @@ import SkillsSection from '@/components/SkillsSection'
 import CertificatesSection from '@/components/CertificatesSection'
 import AboutSection from '@/components/AboutSection'
 import { SparkleField } from '@/components/SparkleDecoration'
-import NubeIntro from '@/components/nube/NubeIntro'
 import NubeAssistant from '@/components/nube/NubeAssistant'
 
 export default function Home() {
   const [currentLanguage, setCurrentLanguage] = useStoredLanguage()
-  const [introDone, setIntroDone] = useState(false)
   const t = translations[currentLanguage]
-  // O topo só anima depois da abertura do Nube
-  const heroIn = (y: number) => (introDone ? { opacity: 1, y: 0 } : { opacity: 0, y })
 
   return (
-    <main className="min-h-screen bg-background">
-      <NubeIntro currentLanguage={currentLanguage} onFinish={() => setIntroDone(true)} />
-      <NubeAssistant currentLanguage={currentLanguage} show={introDone} />
+    <motion.main
+      className="min-h-screen bg-background"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+    >
+      <NubeAssistant currentLanguage={currentLanguage} show />
       <Header 
         currentLanguage={currentLanguage}
         onLanguageChange={setCurrentLanguage}
@@ -42,11 +41,7 @@ export default function Home() {
         <div className="hidden md:block absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-white/[0.02] blur-[120px] pointer-events-none" />
         
         <div className="container-custom text-center relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={heroIn(30)}
-            transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
-          >
+          <div>
             {/* Profile Photo */}
             <div className="mb-10 flex justify-center">
               <div className="profile-ring w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden">
@@ -68,34 +63,19 @@ export default function Home() {
               </div>
             </div>
 
-            <motion.h1 
-              className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold mb-6 tracking-tight chrome-text-animated"
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroIn(20)}
-              transition={{ duration: 1, delay: 0.2 }}
-            >
+            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold mb-6 tracking-tight chrome-text-animated">
               {t.home.title}
-            </motion.h1>
+            </h1>
             
-            <motion.p 
-              className="text-lg sm:text-xl text-dim mb-10 max-w-2xl mx-auto leading-relaxed font-light"
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroIn(20)}
-              transition={{ duration: 1, delay: 0.4 }}
-            >
+            <p className="text-lg sm:text-xl text-dim mb-10 max-w-2xl mx-auto leading-relaxed font-light">
               {t.home.subtitle}
-            </motion.p>
+            </p>
             
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
-              initial={{ opacity: 0, y: 20 }}
-              animate={heroIn(20)}
-              transition={{ duration: 1, delay: 0.6 }}
-            >
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <ContactButton currentLanguage={currentLanguage} />
               <ResumeDownload />
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
         </div>
       </section>
@@ -165,14 +145,14 @@ export default function Home() {
               </a>
               
               <a
-                href="mailto:lucas.oliveria014@edu.pucrs.br"
+                href="mailto:lucas.leuck050206@gmail.com"
                 className="glass-card flex flex-col items-center gap-4 p-8 rounded-xl group"
               >
                 <div className="w-12 h-12 rounded-full bg-white/[0.05] flex items-center justify-center group-hover:bg-white/[0.1] transition-all duration-300">
                   <Mail size={24} className="text-dim group-hover:text-foreground transition-colors duration-300" />
                 </div>
                 <span className="font-medium text-foreground">{t.contact.email}</span>
-                <span className="text-sm text-dim">lucas.oliveria014@edu.pucrs.br</span>
+                <span className="text-sm text-dim">lucas.leuck050206@gmail.com</span>
               </a>
             </div>
           </motion.div>
@@ -180,6 +160,6 @@ export default function Home() {
       </section>
 
       <Footer currentLanguage={currentLanguage} />
-    </main>
+    </motion.main>
   )
 }
