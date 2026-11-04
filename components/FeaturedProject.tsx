@@ -167,7 +167,7 @@ export default function FeaturedProject({ currentLanguage }: { currentLanguage: 
         >
           <div className="relative h-64 sm:h-72 overflow-hidden">
             <img
-              src="/projetos/nube/nube.png"
+              src="/projetos/nube/nube.webp"
               alt={currentLanguage === 'pt' ? 'Nube, uma nuvem de pelúcia de boné e correntinha' : 'Nube, a plush cloud with a cap and a chain'}
               className="absolute inset-0 w-full h-full object-cover object-[50%_35%] group-hover:scale-105 transition-transform duration-700"
             />

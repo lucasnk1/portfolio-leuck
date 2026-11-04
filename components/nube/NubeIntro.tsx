@@ -52,26 +52,6 @@ const FLOATERS = [
   { left: '22%', top: '70%', size: 30, delay: 1.1 },
 ]
 
-function Letters({ text, delay }: { text: string; delay: number }) {
-  return (
-    <span className="inline-block" aria-label={text}>
-      {text.split('').map((ch, i) => (
-        <motion.span
-          key={i}
-          aria-hidden="true"
-          className="inline-block chrome-text"
-          initial={{ opacity: 0, y: 40, rotateX: -80, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 220, damping: 16, delay: delay + i * 0.045 }}
-          style={{ transformOrigin: '50% 100%' }}
-        >
-          {ch === ' ' ? ' ' : ch}
-        </motion.span>
-      ))}
-    </span>
-  )
-}
-
 export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps) {
   const copy = COPY[currentLanguage]
   const [visible, setVisible] = useState(true)
@@ -190,12 +170,16 @@ export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps)
           ))}
 
           {/* Nome */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center" style={{ perspective: 800 }}>
-            <h1 className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold tracking-tight leading-none">
-              <Letters text="Lucas" delay={0.15} />
-              <span className="inline-block w-4 sm:w-6" />
-              <Letters text="Leuck" delay={0.4} />
-            </h1>
+          <div className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center">
+            {/* mesmo estilo do nome na home: fonte, peso e cromado animado */}
+            <motion.h1
+              className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold tracking-tight chrome-text-animated pb-2"
+              initial={{ opacity: 0, y: 24, letterSpacing: '0.08em' }}
+              animate={{ opacity: 1, y: 0, letterSpacing: '-0.025em' }}
+              transition={{ duration: 1.1, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
+            >
+              Lucas Leuck
+            </motion.h1>
             <motion.p
               className="mt-6 text-sm sm:text-base text-dim tracking-[0.25em] uppercase font-light"
               initial={{ opacity: 0, y: 10, letterSpacing: '0.6em' }}

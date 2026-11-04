@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     title: 'Nube · Assistente pessoal · Lucas Leuck',
     description: 'Assistente pessoal com IA conectado ao Obsidian e rodando localmente com Ollama. Em desenvolvimento.',
     type: 'article',
-    images: ['/projetos/nube/nube.png'],
+    images: ['/projetos/nube/nube.webp'],
   },
 }
 

@@ -5,7 +5,7 @@ import type { Language } from './i18n'
  * Status atual: conectado ao Obsidian; o restante está em desenvolvimento.
  */
 
-export const NUBE_IMAGE = '/projetos/nube/nube.png'
+export const NUBE_IMAGE = '/projetos/nube/nube.webp'
 
 export type AreaId = 'college' | 'work' | 'gym' | 'money'
 export type StatusId = 'done' | 'dev' | 'planned'
