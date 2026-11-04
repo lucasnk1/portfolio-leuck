@@ -2,8 +2,9 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Linkedin, Github, Mail, Zap, BarChart3, Brain } from 'lucide-react'
-import { Language, translations } from '@/lib/i18n'
+import { Linkedin, Github, Mail } from 'lucide-react'
+import { translations } from '@/lib/i18n'
+import { useStoredLanguage } from '@/lib/use-language'
 import Header from '@/components/Header'
 import ProjectsSection from '@/components/ProjectsSection'
 import Footer from '@/components/Footer'
@@ -11,12 +12,13 @@ import ResumeDownload from '@/components/ResumeDownload'
 import ContactButton from '@/components/ContactButton'
 import SkillsSection from '@/components/SkillsSection'
 import CertificatesSection from '@/components/CertificatesSection'
+import AboutSection from '@/components/AboutSection'
 import { SparkleField } from '@/components/SparkleDecoration'
 import NubeIntro from '@/components/nube/NubeIntro'
 import NubeAssistant from '@/components/nube/NubeAssistant'
 
 export default function Home() {
-  const [currentLanguage, setCurrentLanguage] = useState<Language>('pt')
+  const [currentLanguage, setCurrentLanguage] = useStoredLanguage()
   const [introDone, setIntroDone] = useState(false)
   const t = translations[currentLanguage]
   // O topo só anima depois da abertura do Nube
@@ -99,57 +101,7 @@ export default function Home() {
       </section>
 
       {/* Sobre Section */}
-      <section id="sobre" className="section-padding relative">
-        <div className="container-custom">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.about.title}</h2>
-            <div className="divider-chrome w-24 mx-auto"></div>
-          </motion.div>
-          
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <p className="text-lg text-dim leading-relaxed mb-12 font-light">
-              {t.about.description}
-            </p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
-              {[
-                { title: t.about.python, desc: t.about.pythonDesc, icon: <Zap size={28} /> },
-                { title: t.about.powerBI, desc: t.about.powerBIDesc, icon: <BarChart3 size={28} /> },
-                { title: t.about.aiML, desc: t.about.aiMLDesc, icon: <Brain size={28} /> },
-              ].map((item, i) => (
-                <motion.div 
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
-                  viewport={{ once: true }}
-                  className="glass-card rounded-xl p-8 text-center group flex flex-col items-center"
-                >
-                  <div className="mb-4 text-foreground bg-white/[0.04] p-3 rounded-lg group-hover:bg-white/[0.08] transition-all duration-300 flex items-center justify-center">
-                    {item.icon}
-                  </div>
-                  <div className="text-2xl font-heading font-bold text-foreground mb-2 group-hover:chrome-text transition-all duration-300">
-                    {item.title}
-                  </div>
-                  <p className="text-dim text-sm">{item.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </div>
-      </section>
+      <AboutSection currentLanguage={currentLanguage} />
 
       {/* Projetos Section */}
       <ProjectsSection currentLanguage={currentLanguage} />

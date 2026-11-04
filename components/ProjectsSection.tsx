@@ -3,25 +3,21 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { motion, useMotionValue } from 'framer-motion'
 import { Language, translations } from '@/lib/i18n'
+import { ACADEMIC_PROJECTS, PERSONAL_PROJECTS } from '@/lib/projects'
 import ProjectCard from './ProjectCard'
-import { ExternalLink } from 'lucide-react'
+import FeaturedProject from './FeaturedProject'
 
 interface ProjectsSectionProps {
   currentLanguage: Language
 }
 
-interface Project {
-  title: string
-  description: string
-  technologies: string[]
-  githubUrl?: string
-  liveUrl?: string
-  learnMoreUrl?: string
-  imageUrl?: string
-  imageAlt?: string
+const SECTION_COPY = {
+  pt: { eyebrow: 'OUTROS PROJETOS', heading: 'Mais do que eu construí.', academic: 'Acadêmicos', personal: 'Pessoais' },
+  en: { eyebrow: 'OTHER PROJECTS', heading: 'More of what I’ve built.', academic: 'Academic', personal: 'Personal' },
 }
 
 const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
+  const copy = SECTION_COPY[currentLanguage]
   const t = translations[currentLanguage]
   const [activeTab, setActiveTab] = useState<'academic' | 'personal'>('academic')
   const [isPaused, setIsPaused] = useState(false)
@@ -31,132 +27,22 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
   const trackRef = useRef<HTMLDivElement | null>(null)
   const x = useMotionValue(0)
 
-  // Agora: Acadêmicos
-  const fallbackAcademicProjects: Project[] = [
-    {
-      title: "Tower Defense Concorrente em GO",
-      description: "Tower Defense Concorrente é um jogo de defesa de torres implementado em Go, utilizando técnicas avançadas de programação concorrente com goroutines e channels. O jogo demonstra conceitos de processamento paralelo e distribuído através de uma arquitetura baseada em entidades autônomas que se comunicam via canais de mensagens.",
-      technologies: ["Go (Golang)", "Goroutines", "Channels", "Concorrência", "Programação Paralela"],
-      githubUrl: "https://github.com/jpfossa/Jogo_Concorrente_Terminal_FPPD",
-    },
-    {
-      title: "Manipulação de Dados de Candidatos",
-      description: "Sistema em python manipulando três grandes bases de dados de candidatos do Rio Grande do Sul usando listas encadeadas para algumas consultas",
-      technologies: ["Python", "csv", "ipynb"],
-      githubUrl: "https://github.com/lucasnk1/TI1/tree/main",
-    },
-    {
-      title: "Crawler Wikipedia e Grau de Separação",
-      description: "Crawler na Wikipédia: programa que navega pelos links, identifica páginas de pessoas e salva o HTML. Depois, monta um grafo conectando pessoas por links diretos e usa BFS para mostrar o grau de separação e o caminho entre duas escolhidas.",
-      technologies: ["HTML", "ipynb", "Python"],
-      githubUrl: "https://github.com/lucasnk1/crawler-wikipedia",
-    },
-    {
-      title: "Coleta de Dados do IMDB",
-      description: "Web Scraping de dados do site IMDB (Internet Movie Database) utilizando a biblioteca Selenium para simular a navegação de um usuário real e contornar proteções básicas do site.",
-      technologies: ["JSON", "Python"],
-      githubUrl: "https://github.com/lucasnk1/Coleta-de-Dados-do-IMDB",
-    },
-    {
-      title: "EDA do dataset Palmer Penguins ",
-      description: "Análise exploratória de dados (EDA) e pré-processamento do dataset Palmer Penguins. Foco na identificação de features, tratamento de valores faltantes e análise de balanceamento de classes.",
-      technologies: ["Python", "csv", "ipynb"],
-      githubUrl: "https://github.com/lucasnk1/analise-dados-penguins",
-    },
-    {
-      title: "API REST Pandas ClashDataset ",
-      description: "API REST em Flask para manipulação e consulta (CRUD) de dados do dataset clash_wiki_dataset.csv com Pandas. Inclui script de consumo (requests) e coleção Postman para validação.",
-      technologies: ["Python", "csv", "ipynb", "Flask", "Postman", "requests","Pandas","API REST"],
-      githubUrl: "https://github.com/lucasnk1/API-REST-Pandas-ClashDataset",
-    },
-    {
-      title: "Pratica de Semaforos e Monitores em Go",
-      description: "Este projeto apresenta exemplos e exercicios de sincronizacao de goroutines, com enfase em dois mecanismos: Semaforo contador com golang.org/x/sync/semaphore Monitor com sync.Cond",
-      technologies: ["Go (Golang)", "Goroutines", "Semáforos", "sync.Cond", "Concorrência"],
-      githubUrl: "https://github.com/lucasnk1/Semaforos-e-Monitores-Go",
-    },
-    {
-      title: "Masked Face Recognition Pipeline",
-      description: "Estudo e implementação de um pipeline de reconhecimento facial com rostos mascarados, utilizando embeddings de CNN e bancos de dados vetoriais (ChromaDB/FaceDB) para busca por similaridade.",
-      technologies: ["Python", "ChromaDB", "FaceDB", "CNN", "Embeddings", "ipynb"],
-      githubUrl: "https://github.com/lucasnk1/masked-face-recognition-pipeline",
-    }
-    // Adicione mais projetos de programação aqui
-  ]
-
-  // Agora: Pessoais
-  const fallbackPersonalProjects: Project[] = [
-    {
-       title: "Elyra",
-       description: "Uma plataforma de inteligência tecnológica movida por IA que reúne e organiza as notícias mais relevantes do ecossistema tech em tempo real.",
-       technologies: ["Next.js","TypeScript","OpenAI","PostgreSQL"],
-       githubUrl: "https://github.com/lucasnk1/Elyra",
-       imageUrl: "/printhome.png",
-       liveUrl: "https://elyra-red.vercel.app/"
-     },
-     {
-       title: "eBook: JOVENS E A CORRIDA PELO DINHEIRO",
-       description: "Um olhar honesto sobre a geração que corre sem saber onde quer chegar — e o preço que paga por isso.",
-       technologies: [""],
-       learnMoreUrl: "https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?usp=sharing",
-       imageUrl: "/ebook-capa.jpg", // coloque sua capa em public/ebook-capa.jpg
-       imageAlt: "Capa do eBook Jovens e a Corrida pelo Dinheiro"
-     },
-     {
-      title: "Data Detective ",
-      description: "Aprenda SQL resolvendo mistérios: investigue casos analisando dados e descubra o culpado.",
-      technologies: ["CSS", "JS","ts","API", "npm", "git"],
-      imageUrl: "/print-datadetective.jpeg",
-      imageAlt: "Interface do Data Detective mostrando um caso de investigação de dados",
-      githubUrl: "https://github.com/lucasnk1/Data-Detective",
-      liveUrl: "https://data-detective-seven.vercel.app/"
-    }
-    // Adicione mais projetos acadêmicos aqui
-  ]
-
-  const [githubProjects, setGithubProjects] = useState<{ academic: Project[]; personal: Project[] } | null>(null)
-
-  useEffect(() => {
-    let isMounted = true
-
-    fetch('/api/projects')
-      .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((data) => {
-        if (isMounted && data.academic?.length && data.personal?.length) setGithubProjects(data)
-      })
-      .catch(() => {})
-
-    return () => {
-      isMounted = false
-    }
-  }, [])
-
-  const academicProjects = githubProjects?.academic ?? fallbackAcademicProjects
-  const personalProjects = githubProjects?.personal ?? fallbackPersonalProjects
+  // Projetos cadastrados manualmente em lib/projects.ts
+  const academicProjects = ACADEMIC_PROJECTS
+  const personalProjects = PERSONAL_PROJECTS
 
   const tabs = [
-    {
-      id: 'academic' as const,
-      label: 'Acadêmicos',
-      count: academicProjects.length
-    },
-    {
-      id: 'personal' as const,
-      label: 'Pessoais',
-      count: personalProjects.length
-    }
+    { id: 'academic' as const, label: copy.academic, count: academicProjects.length },
+    { id: 'personal' as const, label: copy.personal, count: personalProjects.length },
   ]
 
-  const getActiveProjects = () => {
-    return activeTab === 'academic' ? academicProjects : personalProjects
-  }
+  const activeProjects = activeTab === 'academic' ? academicProjects : personalProjects
 
-  // Lista duplicada para loop infinito (evita "roleta" vazia)
-  const projectsLoop = useMemo(() => {
-    const list = getActiveProjects()
-    if (list.length === 0) return []
-    return [...list, ...list, ...list]
-  }, [activeTab, academicProjects, personalProjects])
+  // Lista triplicada para loop infinito (evita "roleta" vazia)
+  const projectsLoop = useMemo(
+    () => (activeProjects.length === 0 ? [] : [...activeProjects, ...activeProjects, ...activeProjects]),
+    [activeProjects],
+  )
 
   // Autoplay com requestAnimationFrame (fluxo contínuo esquerda -> direita)
   useEffect(() => {
@@ -206,6 +92,21 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
         >
           <h2 className="text-3xl sm:text-5xl font-heading font-bold mb-4 tracking-tight">{t.projects.title}</h2>
           <div className="divider-chrome w-24 mx-auto"></div>
+        </motion.div>
+
+        {/* Projeto em destaque */}
+        <FeaturedProject currentLanguage={currentLanguage} />
+
+        {/* Outros projetos */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7 }}
+          className="mb-8"
+        >
+          <p className="font-mono text-xs tracking-[0.2em] text-dim mb-3">{copy.eyebrow}</p>
+          <h3 className="text-3xl sm:text-4xl font-heading font-bold tracking-tight">{copy.heading}</h3>
         </motion.div>
 
         {/* Tabs */}
@@ -296,7 +197,9 @@ const ProjectsSection = ({ currentLanguage }: ProjectsSectionProps) => {
                     <div className={isHovered ? 'ring-1 ring-white/[0.15] rounded-xl' : ''}>
                       <ProjectCard
                         {...project}
-                        index={idx % (getActiveProjects().length || 1)}
+                        description={project.description[currentLanguage]}
+                        language={currentLanguage}
+                        index={idx % (activeProjects.length || 1)}
                       />
                     </div>
                   </motion.div>

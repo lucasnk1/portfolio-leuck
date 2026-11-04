@@ -37,7 +37,13 @@ interface Message {
 }
 
 type Mode = 'home' | 'roaming' | 'angry'
-type Bubble = { kind: 'help' } | { kind: 'lang'; lang: Language } | { kind: 'angry' } | { kind: 'calm' } | null
+type Bubble =
+  | { kind: 'help' }
+  | { kind: 'lang'; lang: Language }
+  | { kind: 'angry' }
+  | { kind: 'furious' }
+  | { kind: 'calm' }
+  | null
 
 type DistOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
 type FXInput = DistOmit<FX, 'id'>
@@ -53,6 +59,7 @@ const UI = {
     help: 'Psiu! Posso ajudar? 👋',
     lang: 'Agora eu falo português!',
     angry: 'Ei! Para de me cutucar! 😤',
+    furious: 'Chega! Agora você vai ver! ⚡',
     calm: 'Tá bom... já passou 😮‍💨',
   },
   en: {
@@ -63,12 +70,43 @@ const UI = {
     help: 'Psst! Need help? 👋',
     lang: 'Now I speak English!',
     angry: 'Hey! Stop poking me! 😤',
+    furious: "That's it! Now you'll see! ⚡",
     calm: 'Okay... I calmed down 😮‍💨',
   },
 }
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
 const rand = (min: number, max: number) => min + Math.random() * (max - min)
+
+/** Ritmo das animações (ms) */
+const PACE = {
+  hoverGap: 2500, // pausa mínima entre animações de hover
+  firstRoam: 30000, // primeiro passeio depois que ele aparece
+  roamMin: 60000, // intervalo entre passeios
+  roamMax: 100000,
+  windGap: 25000, // entre rajadas de vento (ao rolar rápido)
+  boltGap: 1500, // entre raios de clique duplo
+  angryGap: 8000, // depois de ficar bravo
+  firstStorm: 45000, // primeiro raio "do nada" depois que ele aparece
+  stormMin: 75000, // intervalo entre raios espontâneos
+  stormMax: 130000,
+  flyBoltChance: 0.5, // chance de jogar um raio durante o voo
+  hoverSpam: 5, // passadas de mouse seguidas que irritam o Nube...
+  hoverSpamWindow: 4000, // ...dentro desta janela de tempo
+}
+
+/**
+ * Sorteia o próximo item deixando repetir no máximo 2 vezes seguidas;
+ * depois da segunda repetição, obriga a escolher outro.
+ */
+function pickVaried<T>(options: T[], memory: { last: T | null; streak: number }): T {
+  let pool = options
+  if (memory.last !== null && memory.streak >= 2) pool = options.filter((o) => o !== memory.last)
+  const next = pool[Math.floor(Math.random() * pool.length)]
+  memory.streak = next === memory.last ? memory.streak + 1 : 1
+  memory.last = next
+  return next
+}
 
 /**
  * Formatação simples das respostas do Nube:
@@ -323,6 +361,11 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     bubbleTimer.current = setTimeout(() => setBubble(null), ms)
   }, [])
 
+  const lastActionEnd = useRef(0)
+  const hoverMemory = useRef<{ last: NubeAction | null; streak: number }>({ last: null, streak: 0 })
+  const roamMemory = useRef<{ last: 'fly' | 'walk' | null; streak: number }>({ last: null, streak: 0 })
+  const lastAngryEnd = useRef(0)
+
   const play = useCallback((a: NubeAction, force = false) => {
     if (busy.current && !force) return
     lastAction.current = a
@@ -331,6 +374,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     setActionKey((n) => n + 1)
     setTimeout(() => {
       busy.current = false
+      lastActionEnd.current = performance.now()
       setAction('idle')
     }, ACTION_DURATION[a] + 150)
   }, [])
@@ -406,6 +450,23 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
 
   /* ---------------- chat ---------------- */
 
+  // outras partes do site podem pedir para abrir o chat (ex.: card do projeto Nube)
+  useEffect(() => {
+    if (!show) return
+    const onOpen = () => {
+      if (modeRef.current === 'roaming') {
+        abortRoam.current = true
+        openAfterRoam.current = true
+        return
+      }
+      if (modeRef.current === 'angry') return
+      setBubble(null)
+      setOpen(true)
+    }
+    window.addEventListener('nube:open', onOpen)
+    return () => window.removeEventListener('nube:open', onOpen)
+  }, [show])
+
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
   }, [messages, typing])
@@ -453,6 +514,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
 
   const triggerAngry = useCallback(() => {
     if (modeRef.current !== 'home' || reduced.current) return
+    if (performance.now() - lastAngryEnd.current < PACE.angryGap) return
     setOpen(false)
     setMode('angry')
     setMood('angry')
@@ -471,12 +533,57 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       setMood('normal')
       showBubble({ kind: 'calm' }, 2200)
     }, 2700)
-    setTimeout(() => setMode('home'), 3100)
+    setTimeout(() => {
+      lastAngryEnd.current = performance.now()
+      setMode('home')
+    }, 3100)
   }, [addFX, play, showBubble])
+
+  /* ---------------- irritado com tanto hover: vai pro meio da tela e solta um raio ---------------- */
+
+  const hoverTimes = useRef<number[]>([])
+  const triggerFurious = useCallback(async () => {
+    if (modeRef.current !== 'home' || reduced.current) return
+    if (performance.now() - lastAngryEnd.current < PACE.angryGap) return
+    setOpen(false)
+    setMode('angry')
+    setMood('angry')
+    showBubble({ kind: 'furious' }, 2600)
+
+    // voa bravo até o centro da tela
+    const home = nubeCenter()
+    const w = window.innerWidth
+    const h = window.innerHeight
+    setLook({ x: -0.4, y: -0.6 })
+    await flight.start(
+      { x: w / 2 - home.x, y: h / 2 - home.y, scale: 1.45, rotate: [0, -8, 6, 0] },
+      { duration: 0.9, ease: [0.6, 0, 0.3, 1] },
+    )
+
+    // treme de raiva...
+    play('rage', true)
+    await wait(1100)
+
+    // ...e solta o raio lá embaixo, com dois clarões
+    const c = nubeCenter()
+    setLook({ x: 0, y: 1 })
+    addFX({ type: 'bolt', x: c.x, y: Math.min(h - 30, c.y + rand(220, 300)), fromY: c.y + 20 })
+    addFX({ type: 'flash' })
+    setTimeout(() => addFX({ type: 'flash' }), 260)
+    await wait(1400)
+
+    // se acalma e volta pro canto
+    setMood('normal')
+    showBubble({ kind: 'calm' }, 2200)
+    setLook({ x: 1, y: 0.4 })
+    await flight.start({ x: 0, y: 0, scale: 1, rotate: 0 }, { duration: 1.1, ease: 'easeInOut' })
+    setLook({ x: 0, y: 0 })
+    lastAngryEnd.current = performance.now()
+    setMode('home')
+  }, [addFX, flight, play, showBubble])
 
   /* ---------------- passear / voar pelo site ---------------- */
 
-  const roamCount = useRef(0)
   const startRoam = useCallback(async () => {
     if (modeRef.current !== 'home' || openRef.current || hovering.current || document.hidden || reduced.current) return
     setMode('roaming')
@@ -485,7 +592,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     const home = nubeCenter()
     const w = window.innerWidth
     const h = window.innerHeight
-    const kind = roamCount.current++ % 2 === 0 ? 'fly' : 'walk'
+    const kind = pickVaried<'fly' | 'walk'>(['fly', 'walk'], roamMemory.current)
 
     if (kind === 'fly') {
       // rastro de nuvenzinha enquanto voa
@@ -507,6 +614,13 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
         )
         prevX = dx
         if (abortRoam.current) break
+        // no meio do voo ele joga um raio lá embaixo
+        if (p === stops[1] && Math.random() < PACE.flyBoltChance) {
+          const c = nubeCenter()
+          const y = Math.min(h - 40, c.y + rand(160, 260))
+          addFX({ type: 'bolt', x: c.x + rand(-40, 40), y, fromY: c.y + 30 })
+          addFX({ type: 'flash' })
+        }
         // dá uma olhadinha no site
         setLook({ x: -dir * 0.6, y: 0.8 })
         await flight.start({ rotate: 0, y: dy - 10 }, { duration: 0.45 })
@@ -564,15 +678,39 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     const schedule = (ms: number) => {
       timer = setTimeout(async () => {
         await startRoamRef.current()
-        if (alive) schedule(rand(30000, 55000))
+        if (alive) schedule(rand(PACE.roamMin, PACE.roamMax))
       }, ms)
     }
-    schedule(15000)
+    schedule(PACE.firstRoam)
     return () => {
       alive = false
       clearTimeout(timer)
     }
   }, [show])
+
+  /* ---------------- raios espontâneos ---------------- */
+
+  // de tempos em tempos o Nube joga um raio em algum lugar do site
+  useEffect(() => {
+    if (!show) return
+    let timer: ReturnType<typeof setTimeout>
+    const strike = () => {
+      if (modeRef.current === 'home' && !openRef.current && !document.hidden && !reduced.current) {
+        const w = window.innerWidth
+        const h = window.innerHeight
+        const x = rand(w * 0.12, w * 0.8)
+        const y = rand(h * 0.3, h * 0.8)
+        const c = nubeCenter()
+        setLook({ x: (x - c.x) / 300, y: (y - c.y) / 300 })
+        play('jump', true)
+        addFX({ type: 'bolt', x, y, fromY: Math.max(30, y - rand(200, 300)) })
+        addFX({ type: 'flash' })
+      }
+      timer = setTimeout(strike, rand(PACE.stormMin, PACE.stormMax))
+    }
+    timer = setTimeout(strike, PACE.firstStorm)
+    return () => clearTimeout(timer)
+  }, [show, addFX, play])
 
   /* ---------------- interações com o site ---------------- */
 
@@ -601,7 +739,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     const onDouble = (e: MouseEvent) => {
       if (ignore(e.target) || modeRef.current !== 'home' || reduced.current) return
       const now = performance.now()
-      if (now - lastBolt < 700) return
+      if (now - lastBolt < PACE.boltGap) return
       lastBolt = now
       window.getSelection()?.removeAllRanges()
       const c = nubeCenter()
@@ -618,10 +756,11 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
       if (dt < 90) return
       const dy = window.scrollY - anchor.y
       anchor = { t: now, y: window.scrollY }
-      if (Math.abs(dy) / dt < 3 || now - lastWind < 5000) return
+      if (Math.abs(dy) / dt < 3 || now - lastWind < PACE.windGap) return
       if (modeRef.current !== 'home' || reduced.current) return
       lastWind = now
-      addFX({ type: 'wind', dir: dy > 0 ? 1 : -1 })
+      // o vento sempre sopra da esquerda para a direita
+      addFX({ type: 'wind', dir: 1 })
       play('wind', true)
     }
 
@@ -861,9 +1000,18 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
                 ref={nubeRef}
                 onMouseEnter={() => {
                   hovering.current = true
-                  if (modeRef.current === 'home') {
-                    const options = HOVER_ACTIONS.filter((a) => a !== lastAction.current)
-                    play(options[Math.floor(Math.random() * options.length)])
+                  // muitas passadas de mouse seguidas = ele se irrita
+                  const now = performance.now()
+                  hoverTimes.current = hoverTimes.current.filter((t) => now - t < PACE.hoverSpamWindow)
+                  hoverTimes.current.push(now)
+                  if (hoverTimes.current.length >= PACE.hoverSpam && modeRef.current === 'home') {
+                    hoverTimes.current = []
+                    triggerFurious()
+                    return
+                  }
+                  const rested = now - lastActionEnd.current > PACE.hoverGap
+                  if (modeRef.current === 'home' && !busy.current && rested) {
+                    play(pickVaried(HOVER_ACTIONS, hoverMemory.current))
                   }
                 }}
                 onMouseLeave={() => {

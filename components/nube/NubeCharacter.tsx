@@ -269,7 +269,7 @@ export default function NubeCharacter({
           setTimeout(() => alive && setBlinking(false), 420)
         }
         schedule()
-      }, 2200 + Math.random() * 2800)
+      }, 3200 + Math.random() * 3800)
     }
     schedule()
     return () => {
@@ -324,12 +324,18 @@ export default function NubeCharacter({
           <stop offset="82%" stopColor="#dcdde3" />
           <stop offset="100%" stopColor="#b9bbc4" />
         </radialGradient>
-        <radialGradient id={`storm-${id}`} cx="40%" cy="30%" r="80%">
-          <stop offset="0%" stopColor="#a3a7b3" />
-          <stop offset="55%" stopColor="#7c808d" />
-          <stop offset="85%" stopColor="#5b5f6b" />
-          <stop offset="100%" stopColor="#40434c" />
+        {/* bochechas coradas de raiva */}
+        <radialGradient id={`flush-${id}`} cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stopColor="#ff4d5e" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="#ff4d5e" stopOpacity="0" />
         </radialGradient>
+        {/* recorte das pálpebras no formato de cada olho */}
+        <clipPath id={`eye0-${id}`}>
+          <ellipse cx="76" cy="131" rx="10.5" ry="13.5" />
+        </clipPath>
+        <clipPath id={`eye1-${id}`}>
+          <ellipse cx="124" cy="131" rx="10.5" ry="13.5" />
+        </clipPath>
         <radialGradient id={`under-${id}`} cx="50%" cy="100%" r="60%">
           <stop offset="0%" stopColor="#9fa2ae" stopOpacity="0.55" />
           <stop offset="100%" stopColor="#9fa2ae" stopOpacity="0" />
@@ -364,15 +370,12 @@ export default function NubeCharacter({
         {/* Corpo de pelúcia */}
         <g filter={u('plush')}>
           <path d={BODY} fill={u('body')} />
-          {/* cor de nuvem de tempestade quando está bravo */}
-          <motion.path
-            d={BODY}
-            fill={u('storm')}
-            initial={false}
-            animate={{ opacity: angry ? 1 : 0 }}
-            transition={{ duration: 0.35 }}
-          />
           <g clipPath={u('clip')}>
+            {/* bravo: bochechas vermelhas (por baixo do pelo, a textura continua) */}
+            <motion.g initial={false} animate={{ opacity: angry ? 1 : 0 }} transition={{ duration: 0.35 }}>
+              <ellipse cx="58" cy="150" rx="24" ry="15" fill={u('flush')} />
+              <ellipse cx="142" cy="150" rx="24" ry="15" fill={u('flush')} />
+            </motion.g>
             {fur && <rect x="0" y="0" width="200" height="200" fill={u('fur')} />}
             <ellipse cx="100" cy="190" rx="98" ry="40" fill={u('under')} />
             <ellipse cx="72" cy="88" rx="36" ry="24" fill="#fff" opacity="0.5" />
@@ -414,14 +417,26 @@ export default function NubeCharacter({
                 <ellipse cx={e.cx} cy="131" rx="10" ry="13" fill="none" stroke="#000" strokeOpacity="0.25" strokeWidth="1" />
                 <ellipse cx={e.cx - 3.4} cy="125" rx="3.4" ry="4" fill="#fff" opacity="0.95" />
                 <circle cx={e.cx + 3.6} cy="136.5" r="1.6" fill="#fff" opacity="0.55" />
+                {/* bravo: pálpebra na cor do corpo cortando o olho na diagonal */}
+                <g clipPath={u(`eye${i}`)}>
+                  <motion.path
+                    d={i === 0 ? 'M60 96 L94 96 L94 128 L60 117 Z' : 'M106 96 L140 96 L140 117 L106 128 Z'}
+                    fill="#f3f3f6"
+                    initial={false}
+                    animate={{ y: angry ? 0 : -16 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 20 }}
+                  />
+                </g>
               </motion.g>
             ))}
-            {/* pálpebras franzidas (bravo) */}
-            <motion.g initial={false} animate={{ opacity: angry ? 1 : 0, y: angry ? 0 : -8 }} transition={{ duration: 0.25 }}>
-              <path d="M58 106 H92 V128 L60 118 Z" fill="#80848f" />
-              <path d="M60 118 L92 128" stroke="#25272d" strokeWidth="3.2" strokeLinecap="round" />
-              <path d="M108 106 H142 V118 L108 128 Z" fill="#80848f" />
-              <path d="M140 118 L108 128" stroke="#25272d" strokeWidth="3.2" strokeLinecap="round" />
+            {/* bravo: sobrancelhas franzidas, logo acima do corte */}
+            <motion.g
+              initial={false}
+              animate={{ opacity: angry ? 1 : 0, y: angry ? 0 : -6 }}
+              transition={{ duration: 0.25 }}
+            >
+              <path d="M64 115.5 L90 124.5" stroke="#26282e" strokeWidth="3.8" strokeLinecap="round" />
+              <path d="M136 115.5 L110 124.5" stroke="#26282e" strokeWidth="3.8" strokeLinecap="round" />
             </motion.g>
           </motion.g>
         </motion.g>

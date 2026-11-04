@@ -1,7 +1,9 @@
 'use client'
 
-import { ExternalLink, Github } from 'lucide-react'
+import Link from 'next/link'
+import { ArrowUpRight, ExternalLink, Github } from 'lucide-react'
 import { motion } from 'framer-motion'
+import type { Language } from '@/lib/i18n'
 
 interface ProjectCardProps {
   title: string
@@ -9,20 +11,40 @@ interface ProjectCardProps {
   technologies: string[]
   githubUrl?: string
   liveUrl?: string
+  detailsUrl?: string
   learnMoreUrl?: string
   imageUrl?: string
   imageAlt?: string
   index: number
+  language: Language
 }
 
-const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, learnMoreUrl, imageUrl, imageAlt, index }: ProjectCardProps) => {
+const LABELS = {
+  pt: { details: 'Ver detalhes', learnMore: 'Saiba mais' },
+  en: { details: 'See details', learnMore: 'Learn more' },
+}
+
+const ProjectCard = ({
+  title,
+  description,
+  technologies,
+  githubUrl,
+  liveUrl,
+  detailsUrl,
+  learnMoreUrl,
+  imageUrl,
+  imageAlt,
+  index,
+  language,
+}: ProjectCardProps) => {
+  const labels = LABELS[language]
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: index * 0.1 }}
       viewport={{ once: true }}
-      className="glass-card rounded-xl p-6 card-hover group"
+      className="glass-card rounded-xl p-6 card-hover group h-full"
     >
       <div className="flex flex-col h-full">
         <div className="flex-1">
@@ -36,59 +58,49 @@ const ProjectCard = ({ title, description, technologies, githubUrl, liveUrl, lea
               />
             </div>
           )}
-          <h3 className="text-xl font-heading font-semibold text-foreground mb-3 tracking-tight">
-            {title}
-          </h3>
-          <p className="text-dim text-sm mb-5 leading-relaxed">
-            {description}
-          </p>
-          
-          <div className="flex flex-wrap gap-2 mb-6">
-            {technologies.map((tech, techIndex) => (
-              <span
-                key={techIndex}
-                className="px-3 py-1 bg-white/[0.05] text-dim text-xs rounded-full font-mono border border-white/[0.06] hover:border-white/[0.12] hover:text-foreground transition-all duration-200"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
+          <h3 className="text-xl font-heading font-semibold text-foreground mb-3 tracking-tight">{title}</h3>
+          <p className="text-dim text-sm mb-5 leading-relaxed">{description}</p>
+
+          {technologies.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-6">
+              {technologies.map((tech) => (
+                <span
+                  key={tech}
+                  className="px-3 py-1 bg-white/[0.05] text-dim text-xs rounded-full font-mono border border-white/[0.06] hover:border-white/[0.12] hover:text-foreground transition-all duration-200"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          {detailsUrl && (
+            <Link href={detailsUrl} className="btn-primary flex items-center gap-2 px-4 py-2 text-sm">
+              <ArrowUpRight size={14} />
+              <span>{labels.details}</span>
+            </Link>
+          )}
+
           {githubUrl && (
-            <a
-              href={githubUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-chrome flex items-center gap-2 px-4 py-2 text-sm"
-            >
+            <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="btn-chrome flex items-center gap-2 px-4 py-2 text-sm">
               <Github size={14} />
               <span>GitHub</span>
             </a>
           )}
-          
+
           {liveUrl && (
-            <a
-              href={liveUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary flex items-center gap-2 px-4 py-2 text-sm"
-            >
+            <a href={liveUrl} target="_blank" rel="noopener noreferrer" className="btn-primary flex items-center gap-2 px-4 py-2 text-sm">
               <ExternalLink size={14} />
               <span>Demo</span>
             </a>
           )}
 
           {learnMoreUrl && (
-            <a
-              href={learnMoreUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary flex items-center gap-2 px-4 py-2 text-sm"
-            >
+            <a href={learnMoreUrl} target="_blank" rel="noopener noreferrer" className="btn-primary flex items-center gap-2 px-4 py-2 text-sm">
               <ExternalLink size={14} />
-              <span>Saiba mais</span>
+              <span>{labels.learnMore}</span>
             </a>
           )}
         </div>

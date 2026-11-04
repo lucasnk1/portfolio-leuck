@@ -33,6 +33,7 @@ const COPY = {
  *  5000  a tela se fecha em círculo no canto onde ele vai reaparecer
  */
 const EXIT_AT = 5000
+const SEEN_KEY = 'nube-intro-seen'
 
 // Nuvens desfocadas atravessando o fundo
 const BG_CLOUDS = [
@@ -74,6 +75,7 @@ function Letters({ text, delay }: { text: string; delay: number }) {
 export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps) {
   const copy = COPY[currentLanguage]
   const [visible, setVisible] = useState(true)
+  const [skipped, setSkipped] = useState(false)
   const [nubeState, setNubeState] = useState<'hidden' | 'in' | 'out'>('hidden')
   const [look, setLook] = useState({ x: 0, y: 0 })
   const [blink, setBlink] = useState(0)
@@ -96,6 +98,17 @@ export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps)
   }, [])
 
   useEffect(() => {
+    // a abertura toca uma vez por sessão (voltar de um projeto não repete)
+    let seen = false
+    try {
+      seen = sessionStorage.getItem(SEEN_KEY) === '1'
+    } catch {}
+    if (seen) {
+      setSkipped(true)
+      onFinish()
+      return
+    }
+
     document.body.style.overflow = 'hidden'
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
@@ -124,14 +137,20 @@ export default function NubeIntro({ currentLanguage, onFinish }: NubeIntroProps)
     ]
     const timers = steps.map(([ms, fn]) => setTimeout(fn, ms))
     return () => timers.forEach(clearTimeout)
+    // roda só uma vez ao montar
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const nubeY = nubeState === 'in' ? 0 : size * 1.15
+  if (skipped) return null
 
   return (
     <AnimatePresence
       onExitComplete={() => {
         document.body.style.overflow = ''
+        try {
+          sessionStorage.setItem(SEEN_KEY, '1')
+        } catch {}
         onFinish()
       }}
     >
