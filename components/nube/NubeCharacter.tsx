@@ -3,7 +3,8 @@
 import { useEffect, useId, useMemo, useState } from 'react'
 import { motion, type TargetAndTransition } from 'framer-motion'
 
-export type NubeAction = 'idle' | 'jump' | 'capTrick' | 'wink' | 'shiver' | 'dance' | 'wind' | 'clouds'
+export type NubeAction = 'idle' | 'jump' | 'capTrick' | 'wink' | 'shiver' | 'dance' | 'wind' | 'clouds' | 'rage'
+export type NubeMood = 'normal' | 'angry'
 
 interface NubeCharacterProps {
   /** Largura em px (a altura é igual). */
@@ -17,6 +18,8 @@ interface NubeCharacterProps {
   autoBlink?: boolean
   /** Incremente para forçar uma piscada. */
   blinkSignal?: number
+  /** Bravo: fica cinza de tempestade e franze a testa */
+  mood?: NubeMood
   className?: string
 }
 
@@ -83,6 +86,7 @@ export const ACTION_DURATION: Record<NubeAction, number> = {
   dance: 1400,
   wind: 1700,
   clouds: 2000,
+  rage: 2400,
 }
 
 function bodyAnim(action: NubeAction): TargetAndTransition {
@@ -130,6 +134,14 @@ function bodyAnim(action: NubeAction): TargetAndTransition {
         scaleY: [1, 1.05, 0.95, 1.02, 0.97, 1, 1],
         transition: { duration: 2, ease: 'easeInOut' },
       }
+    case 'rage':
+      // incha de raiva e treme, com pulinhos de birra
+      return {
+        x: [0, -5, 5, -5, 5, -4, 4, -5, 5, -3, 3, 0],
+        y: [0, -10, 0, -12, 0, -8, 0, -10, 0, -4, 0, 0],
+        scale: [1, 1.12, 1.1, 1.14, 1.1, 1.13, 1.1, 1.12, 1.08, 1.05, 1.02, 1],
+        transition: { duration: 2.4, ease: 'linear' },
+      }
     default:
       return { x: 0, y: 0, rotate: 0, scale: 1, scaleX: 1, scaleY: 1, skewX: 0 }
   }
@@ -163,6 +175,13 @@ function capAnim(action: NubeAction): TargetAndTransition {
       }
     case 'clouds':
       return { rotate: [0, -6, 6, -4, 0], transition: { duration: 2 } }
+    case 'rage':
+      // o boné pula de tanta raiva (soltando vapor)
+      return {
+        y: [0, -16, 0, -20, 0, -14, 0, -16, 0, 0],
+        rotate: [0, -6, 4, -8, 5, -5, 3, -4, 0, 0],
+        transition: { duration: 2.4 },
+      }
     default:
       return { x: 0, y: 0, rotate: 0 }
   }
@@ -174,6 +193,8 @@ function eyesAnim(action: NubeAction): TargetAndTransition {
       return { y: [0, 0, -7, -7, 0, 0], transition: { duration: 1.3, times: [0, 0.12, 0.4, 0.75, 0.86, 1] } }
     case 'shiver':
       return { scaleY: [1, 0.45, 0.45, 1], transition: { duration: 1, times: [0, 0.1, 0.85, 1] } }
+    case 'rage':
+      return { x: [0, -2, 2, -2, 2, 0], transition: { duration: 2.4 } }
     case 'wind':
       return { scaleY: [1, 0.35, 0.35, 0.35, 1], x: [0, 4, 4, 4, 0], transition: { duration: 1.7, times: [0, 0.1, 0.5, 0.88, 1] } }
     case 'clouds':
@@ -219,8 +240,10 @@ export default function NubeCharacter({
   look = { x: 0, y: 0 },
   autoBlink = true,
   blinkSignal = 0,
+  mood = 'normal',
   className,
 }: NubeCharacterProps) {
+  const angry = mood === 'angry'
   const rawId = useId()
   const id = rawId.replace(/[^a-zA-Z0-9_-]/g, '')
   const [blinking, setBlinking] = useState(false)
@@ -301,6 +324,12 @@ export default function NubeCharacter({
           <stop offset="82%" stopColor="#dcdde3" />
           <stop offset="100%" stopColor="#b9bbc4" />
         </radialGradient>
+        <radialGradient id={`storm-${id}`} cx="40%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#a3a7b3" />
+          <stop offset="55%" stopColor="#7c808d" />
+          <stop offset="85%" stopColor="#5b5f6b" />
+          <stop offset="100%" stopColor="#40434c" />
+        </radialGradient>
         <radialGradient id={`under-${id}`} cx="50%" cy="100%" r="60%">
           <stop offset="0%" stopColor="#9fa2ae" stopOpacity="0.55" />
           <stop offset="100%" stopColor="#9fa2ae" stopOpacity="0" />
@@ -335,6 +364,14 @@ export default function NubeCharacter({
         {/* Corpo de pelúcia */}
         <g filter={u('plush')}>
           <path d={BODY} fill={u('body')} />
+          {/* cor de nuvem de tempestade quando está bravo */}
+          <motion.path
+            d={BODY}
+            fill={u('storm')}
+            initial={false}
+            animate={{ opacity: angry ? 1 : 0 }}
+            transition={{ duration: 0.35 }}
+          />
           <g clipPath={u('clip')}>
             {fur && <rect x="0" y="0" width="200" height="200" fill={u('fur')} />}
             <ellipse cx="100" cy="190" rx="98" ry="40" fill={u('under')} />
@@ -379,6 +416,13 @@ export default function NubeCharacter({
                 <circle cx={e.cx + 3.6} cy="136.5" r="1.6" fill="#fff" opacity="0.55" />
               </motion.g>
             ))}
+            {/* pálpebras franzidas (bravo) */}
+            <motion.g initial={false} animate={{ opacity: angry ? 1 : 0, y: angry ? 0 : -8 }} transition={{ duration: 0.25 }}>
+              <path d="M58 106 H92 V128 L60 118 Z" fill="#80848f" />
+              <path d="M60 118 L92 128" stroke="#25272d" strokeWidth="3.2" strokeLinecap="round" />
+              <path d="M108 106 H142 V118 L108 128 Z" fill="#80848f" />
+              <path d="M140 118 L108 128" stroke="#25272d" strokeWidth="3.2" strokeLinecap="round" />
+            </motion.g>
           </motion.g>
         </motion.g>
 
@@ -420,7 +464,17 @@ export default function NubeCharacter({
 }
 
 /** Nuvenzinha amiga (usada na animação "clouds" e na abertura) */
-export function MiniCloud({ size, tone = '#ffffff', blink = false }: { size: number; tone?: string; blink?: boolean }) {
+export function MiniCloud({
+  size,
+  tone = '#ffffff',
+  blink = false,
+  angry = false,
+}: {
+  size: number
+  tone?: string
+  blink?: boolean
+  angry?: boolean
+}) {
   return (
     <svg viewBox="0 0 60 44" width={size} height={size * (44 / 60)} aria-hidden="true" style={{ overflow: 'visible' }}>
       <path
@@ -435,8 +489,18 @@ export function MiniCloud({ size, tone = '#ffffff', blink = false }: { size: num
         <circle cx="24.2" cy="25.8" r="0.9" fill="#fff" />
         <circle cx="34.2" cy="25.8" r="0.9" fill="#fff" />
       </g>
-      <ellipse cx="20" cy="31" rx="2.4" ry="1.3" fill="#ffb3c1" opacity="0.6" />
-      <ellipse cx="40" cy="31" rx="2.4" ry="1.3" fill="#ffb3c1" opacity="0.6" />
+      {angry ? (
+        <>
+          {/* sobrancelhas de tempestade */}
+          <path d="M21 21.5 L28.5 24.5" stroke="#15161a" strokeWidth="2" strokeLinecap="round" />
+          <path d="M39 21.5 L31.5 24.5" stroke="#15161a" strokeWidth="2" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <ellipse cx="20" cy="31" rx="2.4" ry="1.3" fill="#ffb3c1" opacity="0.6" />
+          <ellipse cx="40" cy="31" rx="2.4" ry="1.3" fill="#ffb3c1" opacity="0.6" />
+        </>
+      )}
     </svg>
   )
 }

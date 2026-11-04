@@ -1,11 +1,20 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useAnimationControls } from 'framer-motion'
 import { Send, X } from 'lucide-react'
 import type { Language } from '@/lib/i18n'
-import { GREETING, QUICK_REPLIES, getNubeReply, type NubeReply } from '@/lib/nube-brain'
-import NubeCharacter, { ACTION_DURATION, MiniCloud, type NubeAction } from './NubeCharacter'
+import {
+  ANOTHER_JOKE,
+  QUICK_REPLIES,
+  getNubeReply,
+  nextJoke,
+  resolveReply,
+  type NubeReply,
+  type ReplyRef,
+} from '@/lib/nube-brain'
+import NubeCharacter, { ACTION_DURATION, MiniCloud, type NubeAction, type NubeMood } from './NubeCharacter'
+import { FX_DURATION, Flag, NubeFXLayer, StormCrown, type FX } from './NubeFX'
 
 interface NubeAssistantProps {
   currentLanguage: Language
@@ -13,12 +22,25 @@ interface NubeAssistantProps {
   show: boolean
 }
 
+/**
+ * Mensagens guardam REFERÊNCIAS às respostas (não o texto), assim o chat
+ * inteiro muda de idioma quando o visitante troca a língua do site.
+ */
 interface Message {
   id: number
-  from: 'nube' | 'user'
-  text: string
-  action?: NubeReply['action']
+  from: 'nube' | 'user' | 'system'
+  ref?: ReplyRef
+  chip?: number
+  another?: boolean
+  text?: string
+  lang?: Language
 }
+
+type Mode = 'home' | 'roaming' | 'angry'
+type Bubble = { kind: 'help' } | { kind: 'lang'; lang: Language } | { kind: 'angry' } | { kind: 'calm' } | null
+
+type DistOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never
+type FXInput = DistOmit<FX, 'id'>
 
 const HOVER_ACTIONS: NubeAction[] = ['jump', 'capTrick', 'wink', 'shiver', 'dance', 'wind', 'clouds']
 
@@ -28,16 +50,25 @@ const UI = {
     placeholder: 'Pergunte algo...',
     open: 'Abrir chat com o Nube',
     close: 'Fechar chat',
-    bubble: 'Psiu! Posso ajudar? 👋',
+    help: 'Psiu! Posso ajudar? 👋',
+    lang: 'Agora eu falo português!',
+    angry: 'Ei! Para de me cutucar! 😤',
+    calm: 'Tá bom... já passou 😮‍💨',
   },
   en: {
     subtitle: "Lucas's assistant",
     placeholder: 'Ask something...',
     open: 'Open chat with Nube',
     close: 'Close chat',
-    bubble: 'Psst! Need help? 👋',
+    help: 'Psst! Need help? 👋',
+    lang: 'Now I speak English!',
+    angry: 'Hey! Stop poking me! 😤',
+    calm: 'Okay... I calmed down 😮‍💨',
   },
 }
+
+const wait = (ms: number) => new Promise((r) => setTimeout(r, ms))
+const rand = (min: number, max: number) => min + Math.random() * (max - min)
 
 /**
  * Formatação simples das respostas do Nube:
@@ -240,18 +271,77 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
   const [action, setAction] = useState<NubeAction>('idle')
   const [actionKey, setActionKey] = useState(0)
   const [look, setLook] = useState({ x: 0, y: 0 })
-  const [messages, setMessages] = useState<Message[]>([])
+  const [mood, setMood] = useState<NubeMood>('normal')
+  const [mode, setModeState] = useState<Mode>('home')
+  const [bubble, setBubble] = useState<Bubble>(null)
+  const [effects, setEffects] = useState<FX[]>([])
+  const [messages, setMessages] = useState<Message[]>([{ id: 0, from: 'nube', ref: { kind: 'greeting' } }])
   const [input, setInput] = useState('')
   const [typing, setTyping] = useState(false)
-  const [showBubble, setShowBubble] = useState(false)
+
   const busy = useRef(false)
   const lastAction = useRef<NubeAction>('idle')
+  const modeRef = useRef<Mode>('home')
+  const openRef = useRef(false)
+  const hovering = useRef(false)
+  const reduced = useRef(false)
+  const bubbleTimer = useRef<ReturnType<typeof setTimeout>>()
+  const fxId = useRef(1)
   const nubeRef = useRef<HTMLButtonElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const nextId = useRef(1)
+  const flight = useAnimationControls()
+  const abortRoam = useRef(false)
+  const openAfterRoam = useRef(false)
+  const nubeClicks = useRef<number[]>([])
 
-  // Arrastar as sugestões com o mouse (no celular o toque já rola)
+  const setMode = (m: Mode) => {
+    modeRef.current = m
+    setModeState(m)
+  }
+
+  useEffect(() => {
+    openRef.current = open
+  }, [open])
+
+  useEffect(() => {
+    reduced.current = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  }, [])
+
+  /* ---------------- utilidades ---------------- */
+
+  const addFX = useCallback((fx: FXInput) => {
+    const id = fxId.current++
+    setEffects((list) => [...list, { ...fx, id } as FX])
+    setTimeout(() => setEffects((list) => list.filter((e) => e.id !== id)), FX_DURATION[fx.type] + 200)
+  }, [])
+
+  const showBubble = useCallback((b: Bubble, ms: number) => {
+    clearTimeout(bubbleTimer.current)
+    setBubble(b)
+    bubbleTimer.current = setTimeout(() => setBubble(null), ms)
+  }, [])
+
+  const play = useCallback((a: NubeAction, force = false) => {
+    if (busy.current && !force) return
+    lastAction.current = a
+    busy.current = true
+    setAction(a)
+    setActionKey((n) => n + 1)
+    setTimeout(() => {
+      busy.current = false
+      setAction('idle')
+    }, ACTION_DURATION[a] + 150)
+  }, [])
+
+  const nubeCenter = () => {
+    const r = nubeRef.current?.getBoundingClientRect()
+    return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2, bottom: r.bottom } : { x: 0, y: 0, bottom: 0 }
+  }
+
+  /* ---------------- arrastar as sugestões ---------------- */
+
   const chipsRef = useRef<HTMLDivElement>(null)
   const drag = useRef({ down: false, startX: 0, scroll: 0, moved: false })
   const onChipsDown = (e: ReactPointerEvent) => {
@@ -269,7 +359,6 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     drag.current.down = false
   }
 
-  // Roda do mouse rola as sugestões na horizontal
   useEffect(() => {
     const el = chipsRef.current
     if (!el) return
@@ -282,38 +371,40 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     return () => el.removeEventListener('wheel', onWheel)
   }, [open])
 
-  // Olhos seguem o cursor
+  /* ---------------- olhos seguem o cursor ---------------- */
+
   useEffect(() => {
     if (!show) return
     const onMove = (e: MouseEvent) => {
-      const el = nubeRef.current
-      if (!el) return
-      const r = el.getBoundingClientRect()
-      const dx = e.clientX - (r.left + r.width / 2)
-      const dy = e.clientY - (r.top + r.height / 2)
-      setLook({ x: dx / 300, y: dy / 300 })
+      if (modeRef.current === 'roaming') return
+      const c = nubeCenter()
+      setLook({ x: (e.clientX - c.x) / 300, y: (e.clientY - c.y) / 300 })
     }
     window.addEventListener('mousemove', onMove)
     return () => window.removeEventListener('mousemove', onMove)
   }, [show])
 
-  // Balãozinho de "posso ajudar?" um tempo depois de aparecer
+  /* ---------------- balão de "posso ajudar?" ---------------- */
+
   useEffect(() => {
     if (!show) return
-    const a = setTimeout(() => setShowBubble(true), 1800)
-    const b = setTimeout(() => setShowBubble(false), 7500)
-    return () => {
-      clearTimeout(a)
-      clearTimeout(b)
-    }
-  }, [show])
+    const t = setTimeout(() => showBubble({ kind: 'help' }, 5700), 1800)
+    return () => clearTimeout(t)
+  }, [show, showBubble])
 
-  // Mensagem de boas-vindas (e troca de idioma)
+  /* ---------------- troca de idioma ---------------- */
+
+  const prevLang = useRef(currentLanguage)
   useEffect(() => {
-    setMessages((prev) =>
-      prev.length <= 1 ? [{ id: 0, from: 'nube', text: GREETING[currentLanguage] }] : prev,
-    )
-  }, [currentLanguage])
+    if (prevLang.current === currentLanguage) return
+    prevLang.current = currentLanguage
+    showBubble({ kind: 'lang', lang: currentLanguage }, 3400)
+    if (modeRef.current === 'home') play('capTrick', true)
+    // aviso dentro do chat (as mensagens antigas já se traduzem sozinhas)
+    setMessages((m) => (m.length > 1 ? [...m, { id: nextId.current++, from: 'system', lang: currentLanguage }] : m))
+  }, [currentLanguage, play, showBubble])
+
+  /* ---------------- chat ---------------- */
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' })
@@ -327,36 +418,24 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
 
-  const playRandom = useCallback(() => {
-    if (busy.current) return
-    const options = HOVER_ACTIONS.filter((a) => a !== lastAction.current)
-    const next = options[Math.floor(Math.random() * options.length)]
-    lastAction.current = next
-    busy.current = true
-    setAction(next)
-    setActionKey((n) => n + 1)
-    setTimeout(() => {
-      busy.current = false
-      setAction('idle')
-    }, ACTION_DURATION[next] + 150)
-  }, [])
-
-  const send = (text: string) => {
-    const clean = text.trim()
-    if (!clean || typing) return
-    setMessages((m) => [...m, { id: nextId.current++, from: 'user', text: clean }])
+  const send = (q: { text?: string; chip?: number; another?: boolean }) => {
+    if (typing) return
+    const text = q.chip !== undefined ? QUICK_REPLIES[currentLanguage][q.chip] : q.another ? ANOTHER_JOKE[currentLanguage] : q.text?.trim()
+    if (!text) return
+    setMessages((m) => [...m, { id: nextId.current++, from: 'user', chip: q.chip, another: q.another, text: q.text?.trim() }])
     setInput('')
     setTyping(true)
-    const reply = getNubeReply(clean, currentLanguage)
+    const ref = q.another ? nextJoke() : getNubeReply(text)
+    const length = resolveReply(ref, currentLanguage).text.length
     setTimeout(() => {
       setTyping(false)
-      setMessages((m) => [...m, { id: nextId.current++, from: 'nube', text: reply.text, action: reply.action }])
-    }, 550 + Math.min(1100, reply.text.length * 5))
+      setMessages((m) => [...m, { id: nextId.current++, from: 'nube', ref }])
+    }, 550 + Math.min(1100, length * 5))
   }
 
-  const runAction = (a: NonNullable<Message['action']>) => {
-    if (a.send) {
-      send(a.send)
+  const runAction = (a: NonNullable<NubeReply['action']>) => {
+    if (a.send === 'another-joke') {
+      send({ another: true })
       return
     }
     if (a.href) {
@@ -370,8 +449,222 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
     }
   }
 
+  /* ---------------- bravo: tempestade com trovões ---------------- */
+
+  const triggerAngry = useCallback(() => {
+    if (modeRef.current !== 'home' || reduced.current) return
+    setOpen(false)
+    setMode('angry')
+    setMood('angry')
+    play('rage', true)
+    showBubble({ kind: 'angry' }, 2500)
+    const strike = () => {
+      const w = window.innerWidth
+      const h = window.innerHeight
+      const x = rand(w * 0.1, w * 0.9)
+      const y = rand(h * 0.35, h * 0.85)
+      addFX({ type: 'bolt', x, y, fromY: Math.max(30, y - rand(200, 320)) })
+      addFX({ type: 'flash' })
+    }
+    ;[350, 1050, 1750].forEach((ms) => setTimeout(strike, ms))
+    setTimeout(() => {
+      setMood('normal')
+      showBubble({ kind: 'calm' }, 2200)
+    }, 2700)
+    setTimeout(() => setMode('home'), 3100)
+  }, [addFX, play, showBubble])
+
+  /* ---------------- passear / voar pelo site ---------------- */
+
+  const roamCount = useRef(0)
+  const startRoam = useCallback(async () => {
+    if (modeRef.current !== 'home' || openRef.current || hovering.current || document.hidden || reduced.current) return
+    setMode('roaming')
+    setBubble(null)
+    abortRoam.current = false
+    const home = nubeCenter()
+    const w = window.innerWidth
+    const h = window.innerHeight
+    const kind = roamCount.current++ % 2 === 0 ? 'fly' : 'walk'
+
+    if (kind === 'fly') {
+      // rastro de nuvenzinha enquanto voa
+      const trail = setInterval(() => {
+        const c = nubeCenter()
+        addFX({ type: 'puff', x: c.x + rand(-8, 8), y: c.y + 26, size: rand(16, 28) })
+      }, 120)
+      let prevX = 0
+      const stops = Array.from({ length: 3 }, () => ({ x: rand(90, w - 90), y: rand(110, h * 0.7) }))
+      for (const p of stops) {
+        if (abortRoam.current) break
+        const dx = p.x - home.x
+        const dy = p.y - home.y
+        const dir = Math.sign(dx - prevX) || 1
+        setLook({ x: dir, y: 0.2 })
+        await flight.start(
+          { x: dx, y: dy, rotate: dir * 10, scale: 0.92 },
+          { duration: rand(1.2, 1.7), ease: 'easeInOut' },
+        )
+        prevX = dx
+        if (abortRoam.current) break
+        // dá uma olhadinha no site
+        setLook({ x: -dir * 0.6, y: 0.8 })
+        await flight.start({ rotate: 0, y: dy - 10 }, { duration: 0.45 })
+      }
+      setLook({ x: 1, y: 0.4 })
+      await flight.start({ x: 0, y: 0, rotate: 0, scale: 1 }, { duration: 1.3, ease: 'easeInOut' })
+      clearInterval(trail)
+    } else {
+      // passeio pulando pelo rodapé da tela
+      const total = -Math.min(w - 200, 640)
+      const hops = 6
+      const step = total / hops
+      setLook({ x: -1, y: 0 })
+      let i = 1
+      for (; i <= hops && !abortRoam.current; i++) {
+        await flight.start({ x: step * i, y: [0, -30, 0], rotate: [0, -7, 0] }, { duration: 0.42, ease: 'easeOut' })
+        const c = nubeCenter()
+        addFX({ type: 'puff', x: c.x, y: c.bottom - 6, size: 18 })
+      }
+      if (!abortRoam.current) {
+        setLook({ x: -0.6, y: -0.8 })
+        await wait(600)
+        setLook({ x: 1, y: 0 })
+        await wait(400)
+      }
+      for (let j = i - 2; j >= 0; j--) {
+        await flight.start({ x: step * j, y: [0, -30, 0], rotate: [0, 7, 0] }, { duration: 0.42, ease: 'easeOut' })
+        const c = nubeCenter()
+        addFX({ type: 'puff', x: c.x, y: c.bottom - 6, size: 18 })
+      }
+    }
+
+    setLook({ x: 0, y: 0 })
+    setMode('home')
+    if (openAfterRoam.current) {
+      openAfterRoam.current = false
+      setOpen(true)
+    }
+  }, [addFX, flight])
+
+  // agenda os passeios: primeiro ~15s depois de aparecer, depois a cada 30–55s
+  const startRoamRef = useRef(startRoam)
+  startRoamRef.current = startRoam
+  useEffect(() => {
+    if (!show) return
+    // atalho só em desenvolvimento: window.__nubeRoam() no console
+    if (process.env.NODE_ENV !== 'production') {
+      ;(window as unknown as { __nubeRoam?: () => void }).__nubeRoam = () => {
+        hovering.current = false
+        startRoamRef.current()
+      }
+    }
+    let timer: ReturnType<typeof setTimeout>
+    let alive = true
+    const schedule = (ms: number) => {
+      timer = setTimeout(async () => {
+        await startRoamRef.current()
+        if (alive) schedule(rand(30000, 55000))
+      }, ms)
+    }
+    schedule(15000)
+    return () => {
+      alive = false
+      clearTimeout(timer)
+    }
+  }, [show])
+
+  /* ---------------- interações com o site ---------------- */
+
+  useEffect(() => {
+    if (!show) return
+    let clicks: number[] = []
+    let lastBolt = 0
+    let lastWind = 0
+    let anchor = { t: performance.now(), y: window.scrollY }
+
+    const ignore = (el: EventTarget | null) =>
+      el instanceof Element && !!el.closest('[role=dialog], input, textarea, [data-nube]')
+
+    // muitos cliques seguidos = Nube fica bravo
+    const onClick = () => {
+      const now = performance.now()
+      clicks = clicks.filter((t) => now - t < 900)
+      clicks.push(now)
+      if (clicks.length >= 5) {
+        clicks = []
+        triggerAngry()
+      }
+    }
+
+    // clique duplo = Nube joga um raio onde você clicou
+    const onDouble = (e: MouseEvent) => {
+      if (ignore(e.target) || modeRef.current !== 'home' || reduced.current) return
+      const now = performance.now()
+      if (now - lastBolt < 700) return
+      lastBolt = now
+      window.getSelection()?.removeAllRanges()
+      const c = nubeCenter()
+      setLook({ x: (e.clientX - c.x) / 300, y: (e.clientY - c.y) / 300 })
+      play('jump', true)
+      addFX({ type: 'bolt', x: e.clientX, y: e.clientY, fromY: Math.max(24, e.clientY - 260) })
+      addFX({ type: 'flash' })
+    }
+
+    // rolar rápido = rajada de vento pela tela
+    const onScroll = () => {
+      const now = performance.now()
+      const dt = now - anchor.t
+      if (dt < 90) return
+      const dy = window.scrollY - anchor.y
+      anchor = { t: now, y: window.scrollY }
+      if (Math.abs(dy) / dt < 3 || now - lastWind < 5000) return
+      if (modeRef.current !== 'home' || reduced.current) return
+      lastWind = now
+      addFX({ type: 'wind', dir: dy > 0 ? 1 : -1 })
+      play('wind', true)
+    }
+
+    document.addEventListener('click', onClick)
+    document.addEventListener('dblclick', onDouble)
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      document.removeEventListener('click', onClick)
+      document.removeEventListener('dblclick', onDouble)
+      window.removeEventListener('scroll', onScroll)
+    }
+  }, [show, addFX, play, triggerAngry])
+
+  const onNubeClick = () => {
+    // cutucou 3x rapidinho? fica bravo
+    const now = performance.now()
+    nubeClicks.current = nubeClicks.current.filter((t) => now - t < 1000)
+    nubeClicks.current.push(now)
+    if (nubeClicks.current.length >= 3) {
+      nubeClicks.current = []
+      triggerAngry()
+      return
+    }
+    if (modeRef.current === 'roaming') {
+      // volta pra casa e abre o chat
+      abortRoam.current = true
+      openAfterRoam.current = true
+      return
+    }
+    if (modeRef.current === 'angry') return
+    setOpen((o) => !o)
+    setBubble(null)
+  }
+
+  /* ---------------- render ---------------- */
+
+  const userText = (m: Message) =>
+    m.chip !== undefined ? QUICK_REPLIES[currentLanguage][m.chip] : m.another ? ANOTHER_JOKE[currentLanguage] : m.text
+
   return (
     <>
+      <NubeFXLayer effects={effects} />
+
       {/* Janela do chat */}
       <AnimatePresence>
         {open && (
@@ -398,6 +691,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
                   {ui.subtitle}
                 </p>
               </div>
+              <Flag lang={currentLanguage} width={22} />
               <button
                 onClick={() => setOpen(false)}
                 aria-label={ui.close}
@@ -409,32 +703,50 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
 
             {/* Mensagens */}
             <div ref={listRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
-              {messages.map((m) => (
-                <motion.div
-                  key={m.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
-                >
-                  <div
-                    className={`max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed rounded-2xl ${
-                      m.from === 'user'
-                        ? 'bg-gradient-to-br from-white to-chrome-300 text-background rounded-br-md'
-                        : 'bg-white/[0.06] text-foreground border border-white/[0.06] rounded-bl-md'
-                    }`}
+              {messages.map((m) => {
+                if (m.from === 'system') {
+                  return (
+                    <motion.div
+                      key={m.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex justify-center"
+                    >
+                      <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-dim">
+                        <Flag lang={m.lang!} width={18} />
+                        {UI[m.lang!].lang}
+                      </span>
+                    </motion.div>
+                  )
+                }
+                const reply = m.from === 'nube' && m.ref ? resolveReply(m.ref, currentLanguage) : null
+                return (
+                  <motion.div
+                    key={m.id}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={`flex ${m.from === 'user' ? 'justify-end' : 'justify-start'}`}
                   >
-                    {m.from === 'nube' ? <RichText text={m.text} /> : m.text}
-                    {m.action && (
-                      <button
-                        onClick={() => runAction(m.action!)}
-                        className="mt-2 block text-xs font-medium px-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors"
-                      >
-                        {m.action.label} →
-                      </button>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+                    <div
+                      className={`max-w-[85%] px-3.5 py-2.5 text-sm leading-relaxed rounded-2xl ${
+                        m.from === 'user'
+                          ? 'bg-gradient-to-br from-white to-chrome-300 text-background rounded-br-md'
+                          : 'bg-white/[0.06] text-foreground border border-white/[0.06] rounded-bl-md'
+                      }`}
+                    >
+                      {reply ? <RichText text={reply.text} /> : userText(m)}
+                      {reply?.action && (
+                        <button
+                          onClick={() => runAction(reply.action!)}
+                          className="mt-2 block text-xs font-medium px-3 py-1.5 rounded-full border border-white/20 hover:bg-white/10 transition-colors"
+                        >
+                          {reply.action.label} →
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )
+              })}
               {typing && (
                 <div className="flex justify-start">
                   <div className="px-4 py-3 rounded-2xl rounded-bl-md bg-white/[0.06] border border-white/[0.06] flex gap-1">
@@ -468,10 +780,10 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
               }}
               className="chips-fade px-3 pb-2 flex gap-2 overflow-x-auto no-scrollbar cursor-grab active:cursor-grabbing select-none touch-pan-x"
             >
-              {QUICK_REPLIES[currentLanguage].map((q) => (
+              {QUICK_REPLIES[currentLanguage].map((q, i) => (
                 <button
                   key={q}
-                  onClick={() => send(q)}
+                  onClick={() => send({ chip: i })}
                   className="shrink-0 text-xs px-3 py-1.5 rounded-full border border-white/10 text-dim hover:text-foreground hover:border-white/25 hover:bg-white/[0.04] transition-colors"
                 >
                   {q}
@@ -483,7 +795,7 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
             <form
               onSubmit={(e) => {
                 e.preventDefault()
-                send(input)
+                send({ text: input })
               }}
               className="flex items-center gap-2 p-3 border-t border-white/[0.06]"
             >
@@ -513,46 +825,67 @@ export default function NubeAssistant({ currentLanguage, show }: NubeAssistantPr
         {show && (
           <motion.div
             key="nube-corner"
+            data-nube
             className="fixed z-[60] right-3 sm:right-5 bottom-3 sm:bottom-4"
             initial={{ y: 160, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 160, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 160, damping: 13, delay: 0.25 }}
           >
-            <AnimatePresence>
-              {showBubble && !open && (
-                <motion.div
-                  className="absolute bottom-[calc(100%-4px)] right-4 whitespace-nowrap text-xs font-medium px-3 py-2 rounded-xl rounded-br-sm bg-white text-background shadow-lg"
-                  initial={{ opacity: 0, y: 6, scale: 0.8 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 6, scale: 0.8 }}
-                >
-                  {ui.bubble}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {/* esta camada é a que voa/passeia pelo site */}
+            <motion.div animate={flight} style={{ originX: 0.5, originY: 1 }}>
+              <AnimatePresence mode="wait">
+                {bubble && !(open && bubble.kind === 'help') && (
+                  <motion.div
+                    key={bubble.kind}
+                    className="absolute z-10 bottom-[calc(100%-4px)] right-4 flex items-center gap-2 whitespace-nowrap text-xs font-semibold px-3 py-2 rounded-xl rounded-br-sm bg-white text-background shadow-lg"
+                    initial={{ opacity: 0, y: 6, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 6, scale: 0.8 }}
+                    transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+                    style={{ originX: 1, originY: 1 }}
+                  >
+                    {bubble.kind === 'lang' ? (
+                      <>
+                        <Flag lang={bubble.lang} />
+                        {UI[bubble.lang].lang}
+                      </>
+                    ) : (
+                      ui[bubble.kind]
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
-            <button
-              ref={nubeRef}
-              onMouseEnter={playRandom}
-              onFocus={playRandom}
-              onClick={() => {
-                setOpen((o) => !o)
-                setShowBubble(false)
-              }}
-              aria-label={open ? ui.close : ui.open}
-              aria-expanded={open}
-              className="relative block w-24 h-24 sm:w-28 sm:h-28 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/30 cursor-pointer"
-            >
-              <Particles action={lastAction.current} k={actionKey} />
-              <NubeCharacter
-                size={112}
-                action={action}
-                actionKey={actionKey}
-                look={look}
-                className="w-full h-full"
-              />
-            </button>
+              <button
+                ref={nubeRef}
+                onMouseEnter={() => {
+                  hovering.current = true
+                  if (modeRef.current === 'home') {
+                    const options = HOVER_ACTIONS.filter((a) => a !== lastAction.current)
+                    play(options[Math.floor(Math.random() * options.length)])
+                  }
+                }}
+                onMouseLeave={() => {
+                  hovering.current = false
+                }}
+                onClick={onNubeClick}
+                aria-label={open ? ui.close : ui.open}
+                aria-expanded={open}
+                className="relative block w-24 h-24 sm:w-28 sm:h-28 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/30 cursor-pointer"
+              >
+                <StormCrown active={mode === 'angry'} />
+                <Particles action={lastAction.current} k={actionKey} />
+                <NubeCharacter
+                  size={112}
+                  action={action}
+                  actionKey={actionKey}
+                  look={look}
+                  mood={mood}
+                  className="w-full h-full"
+                />
+              </button>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
