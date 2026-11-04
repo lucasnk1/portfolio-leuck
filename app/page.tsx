@@ -12,13 +12,20 @@ import ContactButton from '@/components/ContactButton'
 import SkillsSection from '@/components/SkillsSection'
 import CertificatesSection from '@/components/CertificatesSection'
 import { SparkleField } from '@/components/SparkleDecoration'
+import NubeIntro from '@/components/nube/NubeIntro'
+import NubeAssistant from '@/components/nube/NubeAssistant'
 
 export default function Home() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>('pt')
+  const [introDone, setIntroDone] = useState(false)
   const t = translations[currentLanguage]
+  // O topo só anima depois da abertura do Nube
+  const heroIn = (y: number) => (introDone ? { opacity: 1, y: 0 } : { opacity: 0, y })
 
   return (
     <main className="min-h-screen bg-background">
+      <NubeIntro currentLanguage={currentLanguage} onFinish={() => setIntroDone(true)} />
+      <NubeAssistant currentLanguage={currentLanguage} show={introDone} />
       <Header 
         currentLanguage={currentLanguage}
         onLanguageChange={setCurrentLanguage}
@@ -35,7 +42,7 @@ export default function Home() {
         <div className="container-custom text-center relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            animate={heroIn(30)}
             transition={{ duration: 1, ease: [0.25, 0.46, 0.45, 0.94] }}
           >
             {/* Profile Photo */}
@@ -62,7 +69,7 @@ export default function Home() {
             <motion.h1 
               className="text-5xl sm:text-7xl lg:text-8xl font-heading font-extrabold mb-6 tracking-tight chrome-text-animated"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={heroIn(20)}
               transition={{ duration: 1, delay: 0.2 }}
             >
               {t.home.title}
@@ -71,7 +78,7 @@ export default function Home() {
             <motion.p 
               className="text-lg sm:text-xl text-dim mb-10 max-w-2xl mx-auto leading-relaxed font-light"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={heroIn(20)}
               transition={{ duration: 1, delay: 0.4 }}
             >
               {t.home.subtitle}
@@ -80,7 +87,7 @@ export default function Home() {
             <motion.div 
               className="flex flex-col sm:flex-row gap-4 justify-center items-center"
               initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
+              animate={heroIn(20)}
               transition={{ duration: 1, delay: 0.6 }}
             >
               <ContactButton currentLanguage={currentLanguage} />
