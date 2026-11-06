@@ -90,6 +90,8 @@ export const ACADEMIC_PROJECTS: Project[] = [
     },
     technologies: ['Go', 'Goroutines', 'Channels', 'Concorrência'],
     githubUrl: 'https://github.com/jpfossa/Jogo_Concorrente_Terminal_FPPD',
+    imageUrl: '/projetos/tower-defense/card.webp',
+    imageAlt: 'Tela do jogo no terminal: mapa com caminho, inimigos, cursor e a base, com onda, vidas, ouro e score',
   },
   {
     title: 'Semáforos e Monitores em Go',
