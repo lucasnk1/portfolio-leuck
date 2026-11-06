@@ -16,7 +16,8 @@ const COPY = {
       title: 'Nube',
       desc:
         'Meu assistente pessoal para tudo. Ele mora no meu cofre do Obsidian e lê o que eu faço na faculdade, na academia, no trabalho e na agenda para conversar comigo pelo Gemini. Calcula quanto falta para eu passar, busca prazos no Moodle e anota ideias. E a minha família também fala com ele para saber onde eu provavelmente estou e me avisar no celular.',
-      openSource: 'O código está no GitHub para quem quiser fazer algo parecido.',
+      openSource: 'Já uso no dia a dia, como app instalado no celular e no computador.',
+      inUse: 'JÁ EM USO',
       status: 'EM DESENVOLVIMENTO',
       chat: 'Conversar',
       chatAria: 'Abrir o chat com o Nube',
@@ -39,7 +40,8 @@ const COPY = {
       title: 'Nube',
       desc:
         'My personal assistant for everything. It lives in my Obsidian vault and reads what I do in college, at the gym, at work and on my schedule to talk with me through Gemini. It works out what I still need to pass, checks deadlines on Moodle and saves ideas. My family talks to it too, to find out where I probably am and ping my phone.',
-      openSource: 'The code is on GitHub for anyone who wants to build something similar.',
+      openSource: 'I already use it every day, as an app installed on my phone and computer.',
+      inUse: 'ALREADY IN USE',
       status: 'IN DEVELOPMENT',
       chat: 'Chat',
       chatAria: 'Open the chat with Nube',
@@ -193,7 +195,7 @@ export default function FeaturedProject({ currentLanguage }: { currentLanguage: 
             <p className="text-sm text-foreground/85 leading-relaxed mb-5">{c.nube.openSource}</p>
             <p className="flex items-center gap-2 font-mono text-[11px] tracking-[0.2em] text-chrome-300 mb-4">
               <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              {c.nube.status} · GITHUB
+              {c.nube.status} · {c.nube.inUse}
             </p>
             <Link href="/projetos/nube" className="group/link inline-flex w-fit items-center gap-2 text-sm font-semibold chrome-text mb-5">
               {c.cta}

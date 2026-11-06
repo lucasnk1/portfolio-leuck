@@ -183,10 +183,12 @@ const TOPICS: Topic[] = [
     replies: [
       {
         pt: {
-          text: 'Prazer, eu sou o **Nube**! ☁️🧢\n\nSou o assistente virtual do Lucas: meio guia turístico, meio mascote, 100% pelúcia de boné.\n\nPosso te ajudar com:\n• 🚀 os **projetos** do Lucas\n• 🧰 o que ele **sabe fazer**\n• 📄 **currículo** e **contato**\n• 😂 piadas duvidosas (minha especialidade)\n\nE fora daqui eu tenho um irmão gêmeo: o **NUBE assistente pessoal** do Lucas, que mora no Obsidian dele, conversa pelo Gemini e até avisa a família onde ele tá. O código tá no [GitHub](https://github.com/lucasnk1/NUBE)! 🤫',
+          text: 'Prazer, eu sou o **Nube**! ☁️🧢\n\nSou o assistente virtual do Lucas: meio guia turístico, meio mascote, 100% pelúcia de boné.\n\nPosso te ajudar com:\n• 🚀 os **projetos** do Lucas\n• 🧰 o que ele **sabe fazer**\n• 📄 **currículo** e **contato**\n• 😂 piadas duvidosas (minha especialidade)\n\nE fora daqui eu tenho um irmão gêmeo: o **NUBE assistente pessoal** do Lucas, que mora no Obsidian dele, conversa pelo Gemini e até avisa a família onde ele tá. Dá uma olhada na página do projeto! 🤫',
+          action: { label: 'Ver o projeto Nube', href: '/projetos/nube' },
         },
         en: {
-          text: "Nice to meet you, I'm **Nube**! ☁️🧢\n\nLucas's virtual assistant: part tour guide, part mascot, 100% plush in a cap.\n\nI can help with:\n• 🚀 Lucas's **projects**\n• 🧰 what he's **good at**\n• 📄 **resume** and **contact**\n• 😂 questionable jokes (my specialty)\n\nAnd outside this site I have a twin: Lucas's **personal assistant NUBE**, who lives in his Obsidian, talks through Gemini and even lets his family know where he is. The code is on [GitHub](https://github.com/lucasnk1/NUBE)! 🤫",
+          text: "Nice to meet you, I'm **Nube**! ☁️🧢\n\nLucas's virtual assistant: part tour guide, part mascot, 100% plush in a cap.\n\nI can help with:\n• 🚀 Lucas's **projects**\n• 🧰 what he's **good at**\n• 📄 **resume** and **contact**\n• 😂 questionable jokes (my specialty)\n\nAnd outside this site I have a twin: Lucas's **personal assistant NUBE**, who lives in his Obsidian, talks through Gemini and even lets his family know where he is. Check out the project page! 🤫",
+          action: { label: 'See the Nube project', href: '/projetos/nube' },
         },
       },
       {

@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowDown, Check, Github, MessageCircle } from 'lucide-react'
+import { ArrowDown, Check, MessageCircle } from 'lucide-react'
 import type { Language } from '@/lib/i18n'
 import { useStoredLanguage } from '@/lib/use-language'
-import { AREA_IDS, NUBE_COPY, NUBE_IMAGE, NUBE_REPO, type AreaId, type StatusId } from '@/lib/nube-content'
+import { AREA_IDS, NUBE_COPY, NUBE_APP_SHOT, NUBE_IMAGE, type AreaId, type StatusId } from '@/lib/nube-content'
 import NubeAssistant from '@/components/nube/NubeAssistant'
 import { Eyebrow, ProjectEnd, ProjectFooter, ProjectHeader, Reveal, SectionHeading } from './ProjectPageKit'
 
@@ -138,9 +138,6 @@ export default function NubeProject() {
                   <button onClick={openChat} className="btn-chrome inline-flex items-center gap-2 px-4 py-2.5 text-sm">
                     <MessageCircle size={15} /> {c.hero.chat}
                   </button>
-                  <a href={NUBE_REPO} target="_blank" rel="noopener noreferrer" className="btn-chrome inline-flex items-center gap-2 px-4 py-2.5 text-sm">
-                    <Github size={15} /> {c.hero.github}
-                  </a>
                 </div>
                 <Link href="/#projetos" className="inline-block mt-5 text-sm text-dim hover:text-foreground transition-colors">
                   {c.hero.back}
@@ -162,6 +159,21 @@ export default function NubeProject() {
                 <p className="text-xs text-dim mt-1">{s.label}</p>
               </Reveal>
             ))}
+          </div>
+        </section>
+
+        {/* Print do app */}
+        <section className="px-4 sm:px-6 pb-20">
+          <div className="container-custom">
+            <SectionHeading eyebrow={c.shot.eyebrow} title={c.shot.title} intro={c.shot.intro} />
+            <Reveal>
+              <img
+                src={NUBE_APP_SHOT}
+                alt={c.shot.alt}
+                loading="lazy"
+                className="block w-full h-auto border border-white/15 shadow-[0_20px_60px_rgba(0,0,0,0.5)]"
+              />
+            </Reveal>
           </div>
         </section>
 

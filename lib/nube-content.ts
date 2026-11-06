@@ -2,11 +2,11 @@ import type { Language } from './i18n'
 
 /**
  * Conteúdo da página do projeto Nube (assistente pessoal).
- * Baseado no código do repositório github.com/lucasnk1/NUBE.
+ * Baseado no código do NUBE (repositório privado).
  */
 
 export const NUBE_IMAGE = '/projetos/nube/nube.webp'
-export const NUBE_REPO = 'https://github.com/lucasnk1/NUBE'
+export const NUBE_APP_SHOT = '/projetos/nube/app.webp'
 
 export type AreaId = 'college' | 'gym' | 'work' | 'hub' | 'family'
 export type StatusId = 'done' | 'dev' | 'planned'
@@ -22,9 +22,8 @@ const PT = {
     status: 'EM DESENVOLVIMENTO',
     how: 'Ver como funciona',
     chat: 'Falar com o Nube do site',
-    github: 'Ver código no GitHub',
     back: '← Voltar aos projetos',
-    openSource: 'Código no GitHub',
+    openSource: 'Já em uso',
     barLeft: 'NUBE · ASSISTENTE PESSOAL',
     barRight: 'EM DESENVOLVIMENTO',
     demoLabel: 'CONVERSA ILUSTRATIVA',
@@ -41,6 +40,12 @@ const PT = {
     { value: '5', label: 'áreas do cofre' },
     { value: 'PWA', label: 'instala no celular' },
   ],
+  shot: {
+    eyebrow: 'O APP HOJE',
+    title: 'Assim está o NUBE agora.',
+    intro: 'A tela inicial do app no computador: atalhos para o plano do dia, entregas, Moodle, notas, treino e calendário, e o medidor de tokens do Gemini.',
+    alt: 'Tela inicial do app NUBE com a saudação "Bom dia, Lucas.", atalhos e o campo para perguntar ao NUBE',
+  },
   overview: {
     eyebrow: '01 / VISÃO GERAL',
     title: 'Um assistente que mora no meu cofre.',
@@ -95,7 +100,6 @@ const PT = {
       { title: 'Moodle da PUCRS', text: 'Prazos buscados ao vivo e um resumo da semana gravado no cofre todo domingo.', status: 'done' as StatusId },
       { title: 'App, voz e microfone', text: 'Instala no celular, responde com voz em português gerada no aparelho e ouve pelo microfone.', status: 'done' as StatusId },
       { title: 'Família e amigos', text: 'Login próprio, avisos no meu celular com confirmação de entrega e pedidos de encontro no calendário.', status: 'done' as StatusId },
-      { title: 'Código no GitHub', text: 'O código está público no repositório lucasnk1/NUBE.', status: 'done' as StatusId },
       { title: 'Dashboard e metas', text: 'Painel visual das áreas, das metas e do progresso.', status: 'dev' as StatusId },
     ],
   },
@@ -129,9 +133,8 @@ const EN: Copy = {
     status: 'IN DEVELOPMENT',
     how: 'See how it works',
     chat: 'Chat with the site’s Nube',
-    github: 'See the code on GitHub',
     back: '← Back to projects',
-    openSource: 'Code on GitHub',
+    openSource: 'Already in use',
     barLeft: 'NUBE · PERSONAL ASSISTANT',
     barRight: 'IN DEVELOPMENT',
     demoLabel: 'ILLUSTRATIVE CONVERSATION',
@@ -148,6 +151,12 @@ const EN: Copy = {
     { value: '5', label: 'vault areas' },
     { value: 'PWA', label: 'installs on the phone' },
   ],
+  shot: {
+    eyebrow: 'THE APP TODAY',
+    title: 'This is NUBE right now.',
+    intro: 'The app’s home screen on desktop: shortcuts to the day plan, assignments, Moodle, grades, workouts and calendar, plus the Gemini token meter.',
+    alt: 'NUBE app home screen with the greeting "Bom dia, Lucas.", shortcuts and the box to ask NUBE',
+  },
   overview: {
     eyebrow: '01 / OVERVIEW',
     title: 'An assistant that lives in my vault.',
@@ -202,7 +211,6 @@ const EN: Copy = {
       { title: 'PUCRS Moodle', text: 'Deadlines fetched live, plus a weekly summary saved to the vault every Sunday.', status: 'done' },
       { title: 'App, voice and microphone', text: 'Installs on the phone, answers with a Portuguese voice generated on the device and listens through the microphone.', status: 'done' },
       { title: 'Family and friends', text: 'Their own login, pings to my phone with delivery confirmation and meeting requests on the calendar.', status: 'done' },
-      { title: 'Code on GitHub', text: 'The code is public in the lucasnk1/NUBE repository.', status: 'done' },
       { title: 'Dashboard and goals', text: 'A visual panel of the areas, goals and progress.', status: 'dev' },
     ],
   },
