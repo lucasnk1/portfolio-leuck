@@ -4,10 +4,10 @@ import NubeProject from '@/components/projects/NubeProject'
 export const metadata: Metadata = {
   title: 'Nube · Assistente pessoal · Lucas Leuck',
   description:
-    'Nube, meu assistente pessoal com IA: conectado ao Obsidian, com modelo local pelo Ollama e dashboard para faculdade, trabalho, academia e financeiro. Em desenvolvimento, open source no futuro.',
+    'Nube, meu assistente pessoal com IA: mora no meu cofre do Obsidian, conversa pelo Gemini, busca prazos no Moodle, instala no celular e deixa a família saber onde eu provavelmente estou. Em desenvolvimento, com código no GitHub.',
   openGraph: {
     title: 'Nube · Assistente pessoal · Lucas Leuck',
-    description: 'Assistente pessoal com IA conectado ao Obsidian e rodando localmente com Ollama. Em desenvolvimento.',
+    description: 'Assistente pessoal com IA conectado ao Obsidian, com Gemini, Moodle e acesso para a família. Em desenvolvimento.',
     type: 'article',
     images: [{ url: '/projetos/nube/og-nube.jpg', width: 1200, height: 630 }],
   },

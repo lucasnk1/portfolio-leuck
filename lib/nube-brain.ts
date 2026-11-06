@@ -179,14 +179,14 @@ const TOPICS: Topic[] = [
     replies: [],
   },
   {
-    keywords: ['quem e voce', 'quem e vc', 'seu nome', 'who are you', 'your name', 'nube', 'o que voce e', 'what are you', 'o que voce faz', 'what can you do', 'obsidian', 'ollama', 'open source', 'assistente pessoal', 'personal assistant'],
+    keywords: ['quem e voce', 'quem e vc', 'seu nome', 'who are you', 'your name', 'nube', 'o que voce e', 'what are you', 'o que voce faz', 'what can you do', 'obsidian', 'gemini', 'open source', 'assistente pessoal', 'personal assistant'],
     replies: [
       {
         pt: {
-          text: 'Prazer, eu sou o **Nube**! ☁️🧢\n\nSou o assistente virtual do Lucas: meio guia turístico, meio mascote, 100% pelúcia de boné.\n\nPosso te ajudar com:\n• 🚀 os **projetos** do Lucas\n• 🧰 o que ele **sabe fazer**\n• 📄 **currículo** e **contato**\n• 😂 piadas duvidosas (minha especialidade)\n\nSpoiler: estou virando o **assistente pessoal** do Lucas, conectado ao Obsidian dele e rodando com Ollama. E o código vai ser **open source**! 🤫',
+          text: 'Prazer, eu sou o **Nube**! ☁️🧢\n\nSou o assistente virtual do Lucas: meio guia turístico, meio mascote, 100% pelúcia de boné.\n\nPosso te ajudar com:\n• 🚀 os **projetos** do Lucas\n• 🧰 o que ele **sabe fazer**\n• 📄 **currículo** e **contato**\n• 😂 piadas duvidosas (minha especialidade)\n\nE fora daqui eu tenho um irmão gêmeo: o **NUBE assistente pessoal** do Lucas, que mora no Obsidian dele, conversa pelo Gemini e até avisa a família onde ele tá. O código tá no [GitHub](https://github.com/lucasnk1/NUBE)! 🤫',
         },
         en: {
-          text: "Nice to meet you, I'm **Nube**! ☁️🧢\n\nLucas's virtual assistant: part tour guide, part mascot, 100% plush in a cap.\n\nI can help with:\n• 🚀 Lucas's **projects**\n• 🧰 what he's **good at**\n• 📄 **resume** and **contact**\n• 😂 questionable jokes (my specialty)\n\nSpoiler: I'm becoming Lucas's **personal assistant**, connected to his Obsidian and running on Ollama. And the code will be **open source**! 🤫",
+          text: "Nice to meet you, I'm **Nube**! ☁️🧢\n\nLucas's virtual assistant: part tour guide, part mascot, 100% plush in a cap.\n\nI can help with:\n• 🚀 Lucas's **projects**\n• 🧰 what he's **good at**\n• 📄 **resume** and **contact**\n• 😂 questionable jokes (my specialty)\n\nAnd outside this site I have a twin: Lucas's **personal assistant NUBE**, who lives in his Obsidian, talks through Gemini and even lets his family know where he is. The code is on [GitHub](https://github.com/lucasnk1/NUBE)! 🤫",
         },
       },
       {

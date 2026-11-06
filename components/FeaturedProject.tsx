@@ -15,8 +15,8 @@ const COPY = {
       label: 'ASSISTENTE PESSOAL · IA',
       title: 'Nube',
       desc:
-        'Meu assistente pessoal para tudo. Ele já está conectado ao meu Obsidian, onde guardo o que faço na faculdade, no trabalho, na academia (dieta e treino) e até no financeiro. Com um dashboard e um modelo rodando localmente pela API do Ollama, ele conversa comigo sobre a minha vida, monta metas e acompanha o progresso.',
-      openSource: 'No futuro vou liberar o código como open source para quem quiser fazer algo parecido.',
+        'Meu assistente pessoal para tudo. Ele mora no meu cofre do Obsidian e lê o que eu faço na faculdade, na academia, no trabalho e na agenda para conversar comigo pelo Gemini. Calcula quanto falta para eu passar, busca prazos no Moodle e anota ideias. E a minha família também fala com ele para saber onde eu provavelmente estou e me avisar no celular.',
+      openSource: 'O código está no GitHub para quem quiser fazer algo parecido.',
       status: 'EM DESENVOLVIMENTO',
       chat: 'Conversar',
       chatAria: 'Abrir o chat com o Nube',
@@ -38,8 +38,8 @@ const COPY = {
       label: 'PERSONAL ASSISTANT · AI',
       title: 'Nube',
       desc:
-        'My personal assistant for everything. It is already connected to my Obsidian, where I keep what I do in college, at work, at the gym (diet and training) and even my finances. With a dashboard and a model running locally through the Ollama API, it talks with me about my life, builds goals and tracks progress.',
-      openSource: 'In the future I will release the code as open source for anyone who wants to build something similar.',
+        'My personal assistant for everything. It lives in my Obsidian vault and reads what I do in college, at the gym, at work and on my schedule to talk with me through Gemini. It works out what I still need to pass, checks deadlines on Moodle and saves ideas. My family talks to it too, to find out where I probably am and ping my phone.',
+      openSource: 'The code is on GitHub for anyone who wants to build something similar.',
       status: 'IN DEVELOPMENT',
       chat: 'Chat',
       chatAria: 'Open the chat with Nube',
@@ -56,7 +56,7 @@ const COPY = {
   },
 }
 
-const NUBE_TAGS = ['OBSIDIAN', 'OLLAMA', 'DASHBOARD', 'LLM LOCAL']
+const NUBE_TAGS = ['OBSIDIAN', 'GEMINI', 'PWA', 'MOODLE']
 export const EBOOK_URL = 'https://docs.google.com/document/d/1ZX7XrDxalbt19qlP34cvyzclXYiEiXaSa-QbcPVMP-o/edit?tab=t.0'
 
 /** Pede para o Nube do canto abrir o chat */
@@ -193,7 +193,7 @@ export default function FeaturedProject({ currentLanguage }: { currentLanguage: 
             <p className="text-sm text-foreground/85 leading-relaxed mb-5">{c.nube.openSource}</p>
             <p className="flex items-center gap-2 font-mono text-[11px] tracking-[0.2em] text-chrome-300 mb-4">
               <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              {c.nube.status} · OPEN SOURCE
+              {c.nube.status} · GITHUB
             </p>
             <Link href="/projetos/nube" className="group/link inline-flex w-fit items-center gap-2 text-sm font-semibold chrome-text mb-5">
               {c.cta}

@@ -176,8 +176,8 @@ export const skillsData: SkillCategory[] = [
         name: 'LLMs & Ollama',
         icon: Bot,
         description: {
-          pt: 'Modelos de linguagem rodando localmente com o Ollama, como no Nube, meu assistente pessoal.',
-          en: 'Language models running locally with Ollama, as in Nube, my personal assistant.'
+          pt: 'Modelos de linguagem rodando localmente com o Ollama.',
+          en: 'Language models running locally with Ollama.'
         }
       },
       {
@@ -585,8 +585,8 @@ export const skillsData: SkillCategory[] = [
         name: 'Obsidian',
         icon: BookOpen,
         description: {
-          pt: 'App de notas em Markdown onde organizo faculdade, trabalho, treino e finanças, conectado ao Nube.',
-          en: 'Markdown notes app where I organize college, work, training and finances, connected to Nube.'
+          pt: 'App de notas em Markdown onde organizo faculdade, trabalho, treino e agenda, conectado ao Nube.',
+          en: 'Markdown notes app where I organize college, work, training and my schedule, connected to Nube.'
         }
       },
       {
