@@ -68,6 +68,8 @@ export const ACADEMIC_PROJECTS: Project[] = [
     },
     technologies: ['Python', 'CNN', 'Embeddings', 'ChromaDB', 'FaceDB', 'Jupyter'],
     githubUrl: 'https://github.com/lucasnk1/masked-face-recognition-pipeline',
+    imageUrl: '/projetos/masked-face/card.webp',
+    imageAlt: 'Pessoa desconhecida reconhecida como a pessoa 1, com distância 0,119 entre os embeddings',
   },
   {
     title: 'Processamento e Transformação de Imagens com OpenCV',
@@ -77,6 +79,8 @@ export const ACADEMIC_PROJECTS: Project[] = [
     },
     technologies: ['Python', 'OpenCV', 'NumPy', 'Jupyter'],
     githubUrl: 'https://github.com/lucasnk1/Processamento-Transformacao-Imagens-OpenCV',
+    imageUrl: '/projetos/opencv/card.webp',
+    imageAlt: 'A mesma foto em tons de cinza com transformações logarítmica, exponencial, quadrado, raiz quadrada e negativo',
   },
   {
     title: 'Tower Defense Concorrente em Go',
